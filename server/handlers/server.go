@@ -6,6 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (h Handler) ServerStatus(e echo.Context) error {
-	return e.JSON(http.StatusOK, map[string]any{"is_healthy": true})
+func (h *Handler) ServerStatus(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]any{"is_healthy": true})
 }
