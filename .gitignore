@@ -15,6 +15,12 @@
 
 # production
 /build
+/bin
+
+# server
+*.crt
+*.csr
+*.key
 
 # misc
 .DS_Store
