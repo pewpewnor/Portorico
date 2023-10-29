@@ -1,40 +1,43 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/charmbracelet/log"
+	"github.com/gofiber/fiber/v2"
 	"github.com/pewpewnor/portorico/server/model"
 	"github.com/pewpewnor/portorico/server/response"
+	"github.com/pewpewnor/portorico/server/validator"
 )
 
 type CreateUserRequest struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Name     string `json:"name" validate:"required"`
+	Name string `json:"name" validate:"required"`
+	Age  int    `json:"age" validate:"required"`
 }
 
-func (h *Handler) GetAllUsers(c echo.Context) error {
+func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 	var users []model.User
 	if err := h.DB.Find(&users).Error; err != nil {
-		log.Printf("Server cannot get all users: %v\n", err)
+		log.Errorf("Server cannot get all users: %v\n", err)
 	}
 
-	return c.JSON(http.StatusOK, users)
+	return c.Status(http.StatusOK).JSON(users)
 }
 
-func (h *Handler) CreateUser(c echo.Context) error {
+func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	var req CreateUserRequest
-	if ok := h.BindAndValidate(c, &req); !ok {
-		return echo.NewHTTPError(http.StatusBadRequest)
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
+	}
+	if validations := validator.Validate(&req); len(validations) > 0 {
+		return c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
 	}
 
 	user := &model.User{Name: req.Name}
 	if err := h.DB.Create(&user).Error; err != nil {
-		log.Printf("Server cannot create user: %v\n", err)
-		return c.JSON(http.StatusInternalServerError, response.SError("Server cannot create user"))
+		log.Warnf("Server cannot create user: %v\n", err)
+		return c.Status(http.StatusInternalServerError).JSON(response.SError("Server cannot create user"))
 	}
 
-	return c.JSON(http.StatusCreated, response.Success("Successfully created user", user))
+	return c.Status(http.StatusOK).JSON(response.Success("Successfully created user", user))
 }

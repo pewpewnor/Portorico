@@ -12,20 +12,16 @@ func (e ErrorResponse) Error() string {
 	return fmt.Sprint(e.ErrorData)
 }
 
-func (e *ErrorResponse) AddValidation(validation ErrorResponseValidation) {
-	e.ErrorData.ValidationErrors = append(e.ErrorData.ValidationErrors,
-		validation)
-}
-
-type ErrorResponseValidation struct {
-	Field   string `json:"field"`
-	Message string `json:"message"`
+type FieldValidation struct {
+	Field         string `json:"field"`
+	ReceivedValue any    `json:"received_value"`
+	Message       string `json:"message"`
 }
 
 type errorResponseContent struct {
-	Message          string                    `json:"message"`
-	Details          string                    `json:"details"`
-	ValidationErrors []ErrorResponseValidation `json:"validationErrors"`
+	Message          string            `json:"message"`
+	Details          string            `json:"details"`
+	ValidationErrors []FieldValidation `json:"validationErrors"`
 }
 
 func SError(message string) ErrorResponse {
@@ -45,19 +41,12 @@ func SErrorFromErr(message string, err error) ErrorResponse {
 	}
 }
 
-func Error(message string, details string, validationErrors []ErrorResponseValidation) ErrorResponse {
+func Error(message string, details string, validationErrors []FieldValidation) ErrorResponse {
 	return ErrorResponse{
 		ErrorData: errorResponseContent{
 			message,
 			details,
 			validationErrors,
 		},
-	}
-}
-
-func NewValidation(field string, message string) ErrorResponseValidation {
-	return ErrorResponseValidation{
-		Field:   field,
-		Message: message,
 	}
 }
