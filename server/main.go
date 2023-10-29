@@ -7,10 +7,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
-	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/joho/godotenv"
 	"github.com/pewpewnor/portorico/server/handlers"
 	"github.com/pewpewnor/portorico/server/model"
+	"github.com/pewpewnor/portorico/server/validator"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -43,8 +43,9 @@ func main() {
 	app.Use(helmet.New())
 
 	h := handlers.Handler{DB: db}
+	validator.Init()
 
-	app.Get("/metrics", monitor.New())
+	// app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
 	app.Get("/users", h.GetAllUsers)
 	app.Post("/user", h.CreateUser)
