@@ -1,28 +1,19 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/charmbracelet/log"
-	"github.com/go-playground/validator"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
 	"github.com/pewpewnor/portorico/server/handlers"
 	"github.com/pewpewnor/portorico/server/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-type Validator struct {
-	validator *validator.Validate
-}
-
-func (v *Validator) Validate(i any) error {
-	return v.validator.Struct(i)
-}
-
-// func errorHandler(err error, c echo.Context) {}
 
 func main() {
 	if err := godotenv.Load(".env.local"); err != nil {
@@ -33,6 +24,10 @@ func main() {
 	if dsn == "" {
 		log.Fatal("Environment variable has no 'DB_URI'")
 	}
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8000"
+	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -41,17 +36,21 @@ func main() {
 
 	db.AutoMigrate(model.Models...)
 
-	e := echo.New()
-	e.Validator = &Validator{validator: validator.New()}
-	// e.HTTPErrorHandler = errorHandler
+	app := fiber.New(fiber.Config{
+		Immutable: true,
+	})
+	app.Use(cors.New())
+	app.Use(helmet.New())
 
 	h := handlers.Handler{DB: db}
 
-	e.GET("/statusz", h.ServerStatus)
-	e.GET("/users", h.GetAllUsers)
-	e.POST("/user", h.CreateUser)
+	app.Get("/metrics", monitor.New())
+	app.Get("/statusz", h.ServerStatus)
+	app.Get("/users", h.GetAllUsers)
+	app.Post("/user", h.CreateUser)
 
-	if err := e.StartTLS(":8000", "server.crt", "server.key"); err != http.ErrServerClosed {
-		log.Fatalf("Cannot start server on port 8000: %v\n", err)
+	log.Infof("Starting server on port %v...", port)
+	if err := app.ListenTLS(":"+port, "server.crt", "server.key"); err != nil {
+		log.Fatalf("Cannot start server on port %v: %v\n", port, err)
 	}
 }
