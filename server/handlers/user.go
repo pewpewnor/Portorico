@@ -7,7 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/pewpewnor/portorico/server/model"
 	"github.com/pewpewnor/portorico/server/response"
-	"github.com/pewpewnor/portorico/server/validator"
 )
 
 type CreateUserBody struct {
@@ -27,11 +26,8 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	var req CreateUserBody
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
-	}
-	if validations := validator.Validate(&req); len(validations) > 0 {
-		return c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
+	if ok := h.BodyParseAndValidate(c, &req); !ok {
+		return nil
 	}
 
 	user := &model.User{Username: req.Username, Password: req.Password, Name: req.Name}
