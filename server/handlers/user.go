@@ -10,9 +10,10 @@ import (
 	"github.com/pewpewnor/portorico/server/validator"
 )
 
-type CreateUserRequest struct {
+type CreateUserBody struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 	Name string `json:"name" validate:"required"`
-	Age  int    `json:"age" validate:"required"`
 }
 
 func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
@@ -25,7 +26,7 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
-	var req CreateUserRequest
+	var req CreateUserBody
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
 	}
@@ -33,7 +34,7 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
 	}
 
-	user := &model.User{Name: req.Name}
+	user := &model.User{Username: req.Username, Password: req.Password, Name: req.Name}
 	if err := h.DB.Create(&user).Error; err != nil {
 		log.Warnf("Server cannot create user: %v\n", err)
 		return c.Status(http.StatusInternalServerError).JSON(response.SError("Server cannot create user"))
