@@ -26,8 +26,8 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	var req CreateUserBody
-	if ok := h.BodyParseAndValidate(c, &req); !ok {
-		return nil
+	if ok, res := h.BodyParseAndValidate(c, &req); !ok {
+		return res
 	}
 
 	user := &model.User{Username: req.Username, Password: req.Password, Name: req.Name}

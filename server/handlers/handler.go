@@ -31,14 +31,12 @@ func (h *Handler) validate(data any) []response.FieldValidation {
 	return validations
 }
 
-func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) bool {
+func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) (bool, error) {
 	if err := c.BodyParser(dataPtr); err != nil {
-		c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
-		return false
+		return false, c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
 	}
 	if validations := h.validate(dataPtr); len(validations) > 0 {
-		c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
-		return false
+		return false, c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
 	}
-	return true
+	return true, nil
 }
