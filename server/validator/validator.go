@@ -7,6 +7,10 @@ import (
 
 var validate = validator.New()
 
+func Init() {
+
+}
+
 func Validate(data any) []response.FieldValidation {
 	validations := []response.FieldValidation{}
 
