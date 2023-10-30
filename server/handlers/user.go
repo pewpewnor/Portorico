@@ -9,7 +9,6 @@ import (
 	"github.com/pewpewnor/portorico/server/response"
 )
 
-
 func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 	var users []model.User
 	if err := h.DB.Find(&users).Error; err != nil {
