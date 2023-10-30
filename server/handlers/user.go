@@ -9,11 +9,6 @@ import (
 	"github.com/pewpewnor/portorico/server/response"
 )
 
-type CreateUserBody struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Name string `json:"name" validate:"required"`
-}
 
 func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 	var users []model.User
@@ -25,7 +20,11 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
-	var req CreateUserBody
+	var req struct {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+		Name string `json:"name" validate:"required"`
+	}
 	if ok, res := h.BodyParseAndValidate(c, &req); !ok {
 		return res
 	}
