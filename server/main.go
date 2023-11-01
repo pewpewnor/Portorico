@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pewpewnor/portorico/server/handlers"
 	"github.com/pewpewnor/portorico/server/model"
+	"github.com/pewpewnor/portorico/server/repository"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -63,7 +64,11 @@ func main() {
 	app.Use(cors.New())
 	app.Use(helmet.New())
 
-	h := handlers.Handler{DB: db, Validator: validator.New()}
+	h := handlers.Handler{
+		DB: db,
+		Validator: validator.New(),
+		UserRepository: &repository.UserRepository{DB: db},
+	}
 
 	app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
@@ -78,5 +83,4 @@ func main() {
 	if err := app.ListenTLS(":"+port, "server.crt", "server.key"); err != nil {
 		log.Fatalf("Cannot start server on port %v: %v\n", port, err)
 	}
-
 }

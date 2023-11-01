@@ -5,13 +5,15 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
-	"github.com/pewpewnor/portorico/server/response"
+	"github.com/pewpewnor/portorico/server/model/response"
+	"github.com/pewpewnor/portorico/server/repository"
 	"gorm.io/gorm"
 )
 
 type Handler struct {
 	DB *gorm.DB
 	Validator *validator.Validate
+	UserRepository *repository.UserRepository
 }
 
 func (h *Handler) validate(data any) []response.FieldValidation {
@@ -23,7 +25,7 @@ func (h *Handler) validate(data any) []response.FieldValidation {
 			validations = append(validations, response.FieldValidation{
 				Field:         err.Field(),
 				ReceivedValue: err.Value(),
-				Message:       "Field is supposed to be " + err.Tag(),
+				Message:       "Validation failed for: " + err.Tag(),
 			})
 		}
 	}
@@ -33,10 +35,10 @@ func (h *Handler) validate(data any) []response.FieldValidation {
 
 func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) (bool, error) {
 	if err := c.BodyParser(dataPtr); err != nil {
-		return false, c.Status(http.StatusBadRequest).JSON(response.SErrorFromErr("Request malformed", err))
+		return false, c.Status(http.StatusBadRequest).JSON(response.RequestMalformed("request body is malformed"))
 	}
 	if validations := h.validate(dataPtr); len(validations) > 0 {
-		return false, c.Status(http.StatusBadRequest).JSON(response.Error("Request malformed", "Validation failed", validations))
+		return false, c.Status(http.StatusBadRequest).JSON(response.RequestMalformedWithValidations(validations))
 	}
 	return true, nil
 }
