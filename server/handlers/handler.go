@@ -16,6 +16,14 @@ type Handler struct {
 	UserRepository *repository.UserRepository
 }
 
+func NewHandler(db *gorm.DB, validator *validator.Validate) *Handler {
+	return &Handler{
+		DB: db,
+		Validator: validator,
+		UserRepository: &repository.UserRepository{DB: db},
+	}
+}
+
 func (h *Handler) validate(data any) []response.FieldValidation {
 	validations := []response.FieldValidation{}
 
