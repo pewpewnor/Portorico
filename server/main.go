@@ -14,7 +14,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pewpewnor/portorico/server/handlers"
 	"github.com/pewpewnor/portorico/server/model"
-	"github.com/pewpewnor/portorico/server/repository"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -64,11 +63,7 @@ func main() {
 	app.Use(cors.New())
 	app.Use(helmet.New())
 
-	h := handlers.Handler{
-		DB: db,
-		Validator: validator.New(),
-		UserRepository: &repository.UserRepository{DB: db},
-	}
+	h := handlers.NewHandler(db, validator.New())
 
 	app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
