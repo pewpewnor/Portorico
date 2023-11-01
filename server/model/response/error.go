@@ -24,29 +24,33 @@ type errorResponseContent struct {
 	ValidationErrors []FieldValidation `json:"validationErrors"`
 }
 
-func SError(message string) ErrorResponse {
+func RequestMalformed(details string) ErrorResponse {
 	return ErrorResponse{
 		ErrorData: errorResponseContent{
-			Message: message,
+			Message: "Request malformed",
+			Details: details,
+			ValidationErrors: nil,
 		},
 	}
 }
 
-func SErrorFromErr(message string, err error) ErrorResponse {
+func RequestMalformedWithValidations(validationErrors []FieldValidation) ErrorResponse {
 	return ErrorResponse{
 		ErrorData: errorResponseContent{
-			Message: message,
-			Details: err.Error(),
+			Message: "Request malformed",
+			Details: "validation failed",
+			ValidationErrors: nil,
 		},
 	}
 }
 
-func Error(message string, details string, validationErrors []FieldValidation) ErrorResponse {
+func InternalProblem(details string) ErrorResponse {
 	return ErrorResponse{
 		ErrorData: errorResponseContent{
-			message,
-			details,
-			validationErrors,
+			Message: "Server encountered a problem while processing the request",
+			Details: details,
+			ValidationErrors: nil,
 		},
 	}
 }
+

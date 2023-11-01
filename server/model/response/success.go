@@ -5,12 +5,6 @@ type SuccessResponseData struct {
 	Data    any    `json:"data"`
 }
 
-func SSuccess(message string) SuccessResponseData {
-	return SuccessResponseData{
-		Message: message,
-	}
-}
-
 func Success(message string, data any) SuccessResponseData {
 	return SuccessResponseData{
 		Message: message,
