@@ -19,9 +19,9 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	var body struct {
-		Username string `json:"username" validate:"bodyuired"`
-		Password string `json:"password" validate:"bodyuired"`
-		Name     string `json:"name" validate:"bodyuired"`
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+		Name     string `json:"name" validate:"required"`
 	}
 	if res := h.BodyParseAndValidate(c, &body); res != nil {
 		return res
