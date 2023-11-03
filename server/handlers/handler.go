@@ -41,12 +41,12 @@ func (h *Handler) validate(data any) []response.FieldValidation {
 	return validations
 }
 
-func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) (bool, error) {
+func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) error {
 	if err := c.BodyParser(dataPtr); err != nil {
-		return false, c.Status(http.StatusBadRequest).JSON(response.RequestMalformed("request body is malformed"))
+		return c.Status(http.StatusBadRequest).JSON(response.RequestMalformed("request body is malformed"))
 	}
 	if validations := h.validate(dataPtr); len(validations) > 0 {
-		return false, c.Status(http.StatusBadRequest).JSON(response.RequestMalformedWithValidations(validations))
+		return c.Status(http.StatusBadRequest).JSON(response.RequestMalformedWithValidations(validations))
 	}
-	return true, nil
+	return nil
 }
