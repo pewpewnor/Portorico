@@ -1,6 +1,6 @@
 {
-	"watch": ["server/"],
+	"watch": ["./server/"],
 	"ext": "go",
-	"exec": "go run server/main.go",
+	"exec": "go build -o ./tmp/main ./server && ./tmp/main",
 	"signal": "SIGTERM"
 }
