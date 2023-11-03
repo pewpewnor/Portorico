@@ -18,16 +18,16 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
-	var req struct {
-		Username string `json:"username" validate:"required"`
-		Password string `json:"password" validate:"required"`
-		Name     string `json:"name" validate:"required"`
+	var body struct {
+		Username string `json:"username" validate:"bodyuired"`
+		Password string `json:"password" validate:"bodyuired"`
+		Name     string `json:"name" validate:"bodyuired"`
 	}
-	if res := h.BodyParseAndValidate(c, &req); res != nil {
+	if res := h.BodyParseAndValidate(c, &body); res != nil {
 		return res
 	}
 
-	user, err := h.UserRepository.Create(req.Username, req.Password, req.Name)
+	user, err := h.UserRepository.Create(body.Username, body.Password, body.Name)
 	if err != nil {
 		log.Warnf("Server cannot create user: %v\n", err)
 		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot create user"))
