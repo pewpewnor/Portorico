@@ -34,12 +34,12 @@ func RequestMalformed(details string) ErrorResponse {
 	}
 }
 
-func RequestMalformedWithValidations(validationErrors []FieldValidation) ErrorResponse {
+func RequestMalformedWithValidations(validations []FieldValidation) ErrorResponse {
 	return ErrorResponse{
 		ErrorData: errorResponseContent{
 			Message: "Request malformed",
 			Details: "validation failed",
-			ValidationErrors: nil,
+			ValidationErrors: validations,
 		},
 	}
 }
