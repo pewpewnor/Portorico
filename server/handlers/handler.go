@@ -11,15 +11,15 @@ import (
 )
 
 type Handler struct {
-	DB *gorm.DB
-	Validator *validator.Validate
+	DB             *gorm.DB
+	Validator      *validator.Validate
 	UserRepository *repository.UserRepository
 }
 
 func NewHandler(db *gorm.DB, validator *validator.Validate) *Handler {
 	return &Handler{
-		DB: db,
-		Validator: validator,
+		DB:             db,
+		Validator:      validator,
 		UserRepository: &repository.UserRepository{DB: db},
 	}
 }
