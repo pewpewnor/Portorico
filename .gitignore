@@ -15,7 +15,7 @@
 
 # production
 /build
-/bin
+/tmp
 
 # server
 *.crt
