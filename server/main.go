@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"os"
+	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -18,7 +20,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func cleanSoftDeleted(ctx context.Context, db *gorm.DB) {
+func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *gorm.DB) {
+	defer wg.Done()
 	ticker := time.NewTicker(10 * time.Minute)
 
 	for {
@@ -34,6 +37,17 @@ func cleanSoftDeleted(ctx context.Context, db *gorm.DB) {
 			return
 		}
 	}
+}
+
+func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, cancel context.CancelFunc, wg *sync.WaitGroup) {
+	_ = <-osChan
+
+	cancel()
+	wg.Wait()
+	log.Info("Server has killed all background routines")
+
+	_ = app.Shutdown()
+	log.Info("Sever has killed the api endpoints")
 }
 
 func main() {
@@ -71,8 +85,14 @@ func main() {
 	app.Post("/user", h.CreateUser)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go cleanSoftDeleted(ctx, db)
+	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go cleanAllSoftDelete(ctx, &wg, db)
+
+	osChan := make(chan os.Signal, 1)
+	signal.Notify(osChan, os.Interrupt)
+	go shutdownServerWhenInterrupt(osChan, app, cancel, &wg)
 
 	log.Infof("Starting server on port %v...", port)
 	if err := app.ListenTLS(":"+port, "server.crt", "server.key"); err != nil {
