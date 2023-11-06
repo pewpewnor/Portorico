@@ -10,21 +10,21 @@ import (
 	"gorm.io/gorm"
 )
 
-type Handler struct {
+type handler struct {
 	DB             *gorm.DB
 	Validator      *validator.Validate
 	UserRepository *repository.UserRepository
 }
 
-func NewHandler(db *gorm.DB, validator *validator.Validate) *Handler {
-	return &Handler{
+func NewHandler(db *gorm.DB, validator *validator.Validate) *handler {
+	return &handler{
 		DB:             db,
 		Validator:      validator,
 		UserRepository: &repository.UserRepository{DB: db},
 	}
 }
 
-func (h *Handler) validate(data any) []response.FieldValidation {
+func (h *handler) validate(data any) []response.FieldValidation {
 	validations := []response.FieldValidation{}
 
 	errs := h.Validator.Struct(data)
@@ -41,7 +41,7 @@ func (h *Handler) validate(data any) []response.FieldValidation {
 	return validations
 }
 
-func (h *Handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) error {
+func (h *handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) error {
 	if err := c.BodyParser(dataPtr); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.RequestMalformed("request body is malformed"))
 	}

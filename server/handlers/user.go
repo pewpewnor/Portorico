@@ -8,7 +8,7 @@ import (
 	"github.com/pewpewnor/portorico/server/model/response"
 )
 
-func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
+func (h *handler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.UserRepository.GetAll()
 	if err != nil {
 		log.Errorf("Server cannot get all users: %v\n", err)
@@ -17,7 +17,7 @@ func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(response.Success("successfully found all users", users))
 }
 
-func (h *Handler) CreateUser(c *fiber.Ctx) error {
+func (h *handler) CreateUser(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username" validate:"required"`
 		Password string `json:"password" validate:"required"`
