@@ -85,14 +85,14 @@ func main() {
 	app.Post("/user", h.CreateUser)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	go cleanAllSoftDelete(ctx, &wg, db)
+	go cleanAllSoftDelete(ctx, wg, db)
 
 	osChan := make(chan os.Signal, 1)
 	signal.Notify(osChan, os.Interrupt)
-	go shutdownServerWhenInterrupt(osChan, app, cancel, &wg)
+	go shutdownServerWhenInterrupt(osChan, app, cancel, wg)
 
 	log.Infof("Starting server on port %v...", port)
 	if err := app.ListenTLS(":"+port, "server.crt", "server.key"); err != nil {
