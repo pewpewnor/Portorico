@@ -1,3 +1,4 @@
+import ContextProviders from "@/contexts/ContextProviders";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { FC } from "react";
@@ -18,7 +19,9 @@ interface RootLayoutProps {
 const RootLayout: FC<RootLayoutProps> = (props: RootLayoutProps) => {
 	return (
 		<html lang="en">
-			<body className={inter.className}>{props.children}</body>
+			<body className={inter.className}>
+				<ContextProviders>{props.children}</ContextProviders>
+			</body>
 		</html>
 	);
 };
