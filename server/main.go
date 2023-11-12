@@ -48,7 +48,7 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, cancel c
 	log.Info("Server has killed all background routines")
 
 	_ = app.Shutdown()
-	log.Info("Sever has killed the api endpoints")
+	log.Info("Server has killed the api endpoints")
 }
 
 func main() {
