@@ -33,6 +33,7 @@ func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *gorm.DB) {
 				}
 			}
 		case <-ctx.Done():
+			log.Info("Soft delete cleaner routine has stoppped")
 			ticker.Stop()
 			return
 		}
