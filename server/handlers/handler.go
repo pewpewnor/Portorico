@@ -13,14 +13,14 @@ import (
 type handler struct {
 	DB             *gorm.DB
 	Validator      *validator.Validate
-	UserRepository *repository.UserRepository
+	userRepository *repository.UserRepository
 }
 
 func NewHandler(db *gorm.DB, validator *validator.Validate) *handler {
 	return &handler{
 		DB:             db,
 		Validator:      validator,
-		UserRepository: &repository.UserRepository{DB: db},
+		userRepository: &repository.UserRepository{},
 	}
 }
 
