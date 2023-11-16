@@ -29,7 +29,7 @@ func (r *UserRepository) createSession(user model.User) (model.Session, error) {
 
 func (r *UserRepository) Login(username string, password string) (model.Session, bool, error) {
 	var user model.User
-	result := r.DB.Preload("sessiion").Where("username = ?", username).Limit(1).Find(&user)
+	result := r.DB.Preload("session").Where("username = ?", username).Limit(1).Find(&user)
 	if err := result.Error; err != nil {
 		log.Errorf("server cannot find user: %v", err)
 		return model.Session{}, false, err
