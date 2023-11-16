@@ -48,5 +48,6 @@ func (h *handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) error {
 	if validations := h.validate(dataPtr); len(validations) > 0 {
 		return c.Status(http.StatusBadRequest).JSON(response.RequestMalformedWithValidations(validations))
 	}
+
 	return nil
 }
