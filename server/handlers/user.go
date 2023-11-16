@@ -8,7 +8,7 @@ import (
 )
 
 func (h *handler) GetAllUsers(c *fiber.Ctx) error {
-	users, err := h.UserRepository.GetAll()
+	users, err := h.userRepository.GetAll()
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot get all users"))
 	}
@@ -26,7 +26,7 @@ func (h *handler) CreateUser(c *fiber.Ctx) error {
 		return res
 	}
 
-	user, err := h.UserRepository.Create(body.Username, body.Password)
+	user, err := h.userRepository.Create(body.Username, body.Password)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot create user"))
 	}
