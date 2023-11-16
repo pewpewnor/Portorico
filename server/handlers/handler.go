@@ -20,7 +20,7 @@ func NewHandler(db *gorm.DB, validator *validator.Validate) *handler {
 	return &handler{
 		DB:             db,
 		Validator:      validator,
-		userRepository: &repository.UserRepository{},
+		userRepository: &repository.UserRepository{DB: db},
 	}
 }
 
