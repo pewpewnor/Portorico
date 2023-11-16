@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/charmbracelet/log"
 	"github.com/pewpewnor/portorico/server/model"
+	"github.com/pewpewnor/portorico/server/utils"
 	"gorm.io/gorm"
 )
 
@@ -11,19 +12,28 @@ type UserRepository struct {
 }
 
 func (r *UserRepository) Create(username string, password string) (model.User, error) {
-	user := model.User{Username: username, Password: password}
-	err := r.DB.Create(&user).Error
+	hashedPassword, err := utils.EncryptPassword(password)
 	if err != nil {
-		log.Errorf("server cannot create user: %v\n", err)
+		log.Errorf("server cannot hash password when creating user: %v", err)
 	}
-	return user, err
+
+	user := model.User{Username: username, Password: hashedPassword}
+	err = r.DB.Create(&user).Error
+	if err != nil {
+		log.Errorf("server cannot create user: %v", err)
+		return model.User{}, err
+	}
+
+	return user, nil
 }
 
 func (r *UserRepository) GetAll() ([]model.User, error) {
 	var users []model.User
 	err := r.DB.Find(&users).Error
 	if err != nil {
-		log.Errorf("server cannot get all users: %v\n", err)
+		log.Errorf("server cannot get all users: %v", err)
+		return nil, err
 	}
-	return users, err
+
+	return users, nil
 }
