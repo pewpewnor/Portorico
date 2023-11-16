@@ -74,6 +74,7 @@ func main() {
 		log.Fatalf("cannot connect to database: %v\n", err)
 	}
 
+	db.Migrator().DropTable(model.Models...)
 	db.AutoMigrate(model.Models...)
 
 	app := fiber.New(fiber.Config{
