@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -18,6 +19,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/pewpewnor/portorico/server/src/handlers"
 	"github.com/pewpewnor/portorico/server/src/model"
 )
@@ -30,7 +32,7 @@ func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *sqlx.DB) {
 		select {
 		case <-ticker.C:
 			for _, table := range model.Tables {
-				if _, err := db.Exec("DELETE FROM $1 WHERE deleted_at IS NOT NULL", table); err != nil {
+				if _, err := db.Exec(fmt.Sprintf("DELETE FROM %v WHERE deleted_at IS NOT NULL", table)); err != nil {
 					log.Errorf("cannot clean soft deleted data in table %v: %v", table, err)
 				}
 			}
