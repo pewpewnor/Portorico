@@ -1,15 +1,19 @@
 package utils
 
 import (
-	"crypto/rand"
+	"math/rand"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GenerateRandomString(length int) (string, error) {
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func GenerateRandomString(length int) string {
 	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	return string(bytes), err
+	for i := range bytes {
+		bytes[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(bytes)
 }
 
 func EncryptPassword(password string) (string, error) {

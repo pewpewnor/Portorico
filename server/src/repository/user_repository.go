@@ -2,76 +2,69 @@ package repository
 
 import (
 	"github.com/charmbracelet/log"
-	"github.com/pewpewnor/portorico/server/model"
-	"github.com/pewpewnor/portorico/server/utils"
-	"gorm.io/gorm"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+	"github.com/pewpewnor/portorico/server/src/model"
+	"github.com/pewpewnor/portorico/server/src/utils"
 )
 
 type UserRepository struct {
-	DB *gorm.DB
+	DB *sqlx.DB
 }
 
-func (r *UserRepository) createSession(user model.User) (model.Session, error) {
-	token, err := utils.GenerateRandomString(32)
-	if err != nil {
-		log.Errorf("server cannot generate token when creating session: %v", err)
-		return model.Session{}, err
-	}
-
-	session := model.Session{UserID: user.ID, Token: token, User: user}
-	if err = r.DB.Create(&session).Error; err != nil {
+func (r *UserRepository) createSession(userId uuid.UUID) (*model.Session, error) {
+	session := &model.Session{Token: utils.GenerateRandomString(32), UserId: userId}
+	session.FillBaseInsert()
+	if _, err := r.DB.NamedExec("INSERT INTO sessions VALUES (:id, :created_at, :updated_at, :deleted_at, :token, :user_id)", session); err != nil {
 		log.Errorf("server cannot create session: %v", err)
-		return model.Session{}, err
+		return nil, err
 	}
 
 	return session, nil
 }
 
-func (r *UserRepository) Login(username string, password string) (model.Session, bool, error) {
-	var user model.User
-	result := r.DB.Preload("session").Where("username = ?", username).Limit(1).Find(&user)
-	if err := result.Error; err != nil {
-		log.Errorf("server cannot find user: %v", err)
-		return model.Session{}, false, err
+func (r *UserRepository) Login(username string, password string) (*model.User, *model.Session, bool, error) {
+	var user *model.User
+	if err := r.DB.Get(user, "SELECT * FROM users WHERE username=$1 LIMIT 1", username); err != nil {
+		return nil, nil, false, nil
+	}
+	if !utils.VerifySamePassword(password, user.Password) {
+		return nil, nil, false, nil
 	}
 
-	if result.RowsAffected == 0 || utils.VerifySamePassword(password, user.Password) {
-		return model.Session{}, false, nil
-	}
-
-	session, err := r.createSession(user)
+	session, err := r.createSession(user.Id)
 	if err != nil {
-		return model.Session{}, false, err
+		return user, nil, false, err
 	}
 
-	return session, true, nil
+	return user, session, true, err
 }
 
-func (r *UserRepository) Create(username string, password string) (model.Session, error) {
+func (r *UserRepository) Create(username string, password string) (*model.User, *model.Session, error) {
 	hashedPassword, err := utils.EncryptPassword(password)
 	if err != nil {
 		log.Errorf("server cannot hash password when creating user: %v", err)
-		return model.Session{}, err
+		return nil, nil, err
 	}
 
-	user := model.User{Username: username, Password: hashedPassword}
-	if err = r.DB.Create(&user).Error; err != nil {
+	user := &model.User{Username: username, Password: hashedPassword}
+	user.FillBaseInsert()
+	if _, err = r.DB.NamedExec("INSERT INTO users VALUES (:id, :created_at, :updated_at, :deleted_at, :username, :password)", user); err != nil {
 		log.Errorf("server cannot create user: %v", err)
-		return model.Session{}, err
+		return nil, nil, err
 	}
 
-	session, err := r.createSession(user)
+	session, err := r.createSession(user.Id)
 	if err != nil {
-		return model.Session{}, err
+		return user, nil, err
 	}
 
-	return session, nil
+	return user, session, nil
 }
 
 func (r *UserRepository) GetAll() ([]model.User, error) {
 	var users []model.User
-	err := r.DB.Find(&users).Error
-	if err != nil {
+	if err := r.DB.Select(&users, "SELECT * FROM users"); err != nil {
 		log.Errorf("server cannot get all users: %v", err)
 		return nil, err
 	}
