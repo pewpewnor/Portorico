@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator"
@@ -18,27 +19,28 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/pewpewnor/portorico/server/src/handlers"
+	"github.com/pewpewnor/portorico/server/src/model"
 )
 
-// func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *gorm.DB) {
-// 	defer wg.Done()
-// 	ticker := time.NewTicker(10 * time.Minute)
+func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *sqlx.DB) {
+	defer wg.Done()
+	ticker := time.NewTicker(10 * time.Minute)
 
-// 	for {
-// 		select {
-// 		case <-ticker.C:
-// 			for _, model := range model.Models {
-// 				if err := db.Unscoped().Where("deleted_at IS NOT NULL").Delete(model).Error; err != nil {
-// 					log.Errorf("cannot clean soft deleted data from model %v: %v", model, err)
-// 				}
-// 			}
-// 			log.Info("all soft deleted data has been cleaned")
-// 		case <-ctx.Done():
-// 			ticker.Stop()
-// 			return
-// 		}
-// 	}
-// }
+	for {
+		select {
+		case <-ticker.C:
+			for _, table := range model.Tables {
+				if _, err := db.Exec("DELETE FROM $1 WHERE deleted_at IS NOT NULL", table); err != nil {
+					log.Errorf("cannot clean soft deleted data in table %v: %v", table, err)
+				}
+			}
+			log.Info("all soft deleted data has been cleaned")
+		case <-ctx.Done():
+			ticker.Stop()
+			return
+		}
+	}
+}
 
 func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx.DB, cancel context.CancelFunc, wg *sync.WaitGroup) {
 	_ = <-osChan
@@ -110,11 +112,11 @@ func main() {
 	app.Get("/users", h.GetAllUsers)
 	app.Post("/user", h.CreateUser)
 
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
-	// wg.Add(1)
-	// go cleanAllSoftDelete(ctx, wg, db)
+	wg.Add(1)
+	go cleanAllSoftDelete(ctx, wg, db)
 
 	osChan := make(chan os.Signal)
 	signal.Notify(osChan, os.Interrupt)
