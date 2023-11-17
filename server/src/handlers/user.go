@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/pewpewnor/portorico/server/model/response"
+	"github.com/pewpewnor/portorico/server/src/model/response"
 )
 
 func (h *handler) GetAllUsers(c *fiber.Ctx) error {
@@ -20,13 +20,12 @@ func (h *handler) CreateUser(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username" validate:"required"`
 		Password string `json:"password" validate:"required"`
-		Name     string `json:"name" validate:"required"`
 	}
-	if res := h.BodyParseAndValidate(c, &body); res != nil {
+	if ok, res := h.BodyParseAndValidate(c, &body); !ok {
 		return res
 	}
 
-	user, err := h.userRepository.Create(body.Username, body.Password)
+	user, _, err := h.userRepository.Create(body.Username, body.Password)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot create user"))
 	}

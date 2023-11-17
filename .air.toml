@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./server/tmp/main"
-  cmd = "go build -o ./tmp/main ./server"
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./server/src"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -14,7 +14,7 @@ tmp_dir = "tmp"
   follow_symlink = false
   full_bin = ""
   include_dir = ["server"]
-  include_ext = ["go", "tpl", "tmpl", "html"]
+  include_ext = ["go", "sql"]
   include_file = []
   kill_delay = "1s"
   log = "build-errors.log"
