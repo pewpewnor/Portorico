@@ -65,6 +65,8 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 }
 
 func main() {
+	log.SetReportCaller(true)
+
 	if err := godotenv.Load(".env.local"); err != nil {
 		log.Fatalf("cannot load .env.local file: %v\n", err)
 	}
