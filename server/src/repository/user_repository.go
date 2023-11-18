@@ -8,14 +8,18 @@ import (
 	"github.com/pewpewnor/portorico/server/src/utils"
 )
 
-type UserRepository struct {
-	DB *sqlx.DB
+type LiveUserRepository struct {
+	db *sqlx.DB
 }
 
-func (r *UserRepository) createSession(userId uuid.UUID) (*model.Session, error) {
+func NewLiveUserRepository(db *sqlx.DB) *LiveUserRepository {
+	return &LiveUserRepository{db: db}
+}
+
+func (r *LiveUserRepository) createSession(userId uuid.UUID) (*model.Session, error) {
 	session := &model.Session{Token: utils.GenerateRandomString(32), UserId: userId}
 	session.FillBaseInsert()
-	if _, err := r.DB.NamedExec("INSERT INTO sessions VALUES (:id, :created_at, :updated_at, :deleted_at, :token, :user_id)", session); err != nil {
+	if _, err := r.db.NamedExec("INSERT INTO sessions VALUES (:id, :created_at, :updated_at, :deleted_at, :token, :user_id)", session); err != nil {
 		log.Errorf("server cannot create session: %v", err)
 		return nil, err
 	}
@@ -23,9 +27,9 @@ func (r *UserRepository) createSession(userId uuid.UUID) (*model.Session, error)
 	return session, nil
 }
 
-func (r *UserRepository) Login(username string, password string) (*model.User, *model.Session, bool, error) {
+func (r *LiveUserRepository) Login(username string, password string) (*model.User, *model.Session, bool, error) {
 	var user *model.User
-	if err := r.DB.Get(user, "SELECT * FROM users WHERE username=$1 LIMIT 1", username); err != nil {
+	if err := r.db.Get(user, "SELECT * FROM users WHERE username=$1 LIMIT 1", username); err != nil {
 		return nil, nil, false, nil
 	}
 	if !utils.VerifySamePassword(password, user.Password) {
@@ -40,7 +44,7 @@ func (r *UserRepository) Login(username string, password string) (*model.User, *
 	return user, session, true, err
 }
 
-func (r *UserRepository) Create(username string, password string) (*model.User, *model.Session, error) {
+func (r *LiveUserRepository) Create(username string, password string) (*model.User, *model.Session, error) {
 	hashedPassword, err := utils.EncryptPassword(password)
 	if err != nil {
 		log.Errorf("server cannot hash password when creating user: %v", err)
@@ -49,7 +53,7 @@ func (r *UserRepository) Create(username string, password string) (*model.User, 
 
 	user := &model.User{Username: username, Password: hashedPassword}
 	user.FillBaseInsert()
-	if _, err = r.DB.NamedExec("INSERT INTO users VALUES (:id, :created_at, :updated_at, :deleted_at, :username, :password)", user); err != nil {
+	if _, err = r.db.NamedExec("INSERT INTO users VALUES (:id, :created_at, :updated_at, :deleted_at, :username, :password)", user); err != nil {
 		log.Errorf("server cannot create user: %v", err)
 		return nil, nil, err
 	}
@@ -62,9 +66,9 @@ func (r *UserRepository) Create(username string, password string) (*model.User, 
 	return user, session, nil
 }
 
-func (r *UserRepository) GetAll() ([]model.User, error) {
+func (r *LiveUserRepository) GetAll() ([]model.User, error) {
 	var users []model.User
-	if err := r.DB.Select(&users, "SELECT * FROM users"); err != nil {
+	if err := r.db.Select(&users, "SELECT * FROM users"); err != nil {
 		log.Errorf("server cannot get all users: %v", err)
 		return nil, err
 	}
