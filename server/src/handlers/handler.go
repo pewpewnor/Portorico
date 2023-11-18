@@ -23,8 +23,7 @@ func NewHandler(db *sqlx.DB, validator *validator.Validate) *handler {
 func (h *handler) validate(data any) []response.FieldValidation {
 	validations := []response.FieldValidation{}
 
-	errs := h.validator.Struct(data)
-	if errs != nil {
+	if errs := h.validator.Struct(data); errs != nil {
 		for _, err := range errs.(validator.ValidationErrors) {
 			fieldJSONName := err.Field()
 
