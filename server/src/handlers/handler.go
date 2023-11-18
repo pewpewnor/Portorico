@@ -12,23 +12,18 @@ import (
 )
 
 type handler struct {
-	DB             *sqlx.DB
-	Validator      *validator.Validate
-	userRepository *repository.UserRepository
+	userRepository *repository.LiveUserRepository
+	validator      *validator.Validate
 }
 
 func NewHandler(db *sqlx.DB, validator *validator.Validate) *handler {
-	return &handler{
-		DB:             db,
-		Validator:      validator,
-		userRepository: &repository.UserRepository{DB: db},
-	}
+	return &handler{repository.NewLiveUserRepository(db), validator}
 }
 
 func (h *handler) validate(data any) []response.FieldValidation {
 	validations := []response.FieldValidation{}
 
-	errs := h.Validator.Struct(data)
+	errs := h.validator.Struct(data)
 	if errs != nil {
 		for _, err := range errs.(validator.ValidationErrors) {
 			fieldJSONName := err.Field()
