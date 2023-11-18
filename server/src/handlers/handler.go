@@ -47,7 +47,7 @@ func (h *handler) validate(data any) []response.FieldValidation {
 	return validations
 }
 
-func (h *handler) BodyParseAndValidate(c *fiber.Ctx, dataPtr any) (bool, error) {
+func (h *handler) bodyParseAndValidate(c *fiber.Ctx, dataPtr any) (bool, error) {
 	if err := c.BodyParser(dataPtr); err != nil {
 		return false, c.Status(http.StatusBadRequest).JSON(response.RequestMalformed("request body is malformed"))
 	}

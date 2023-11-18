@@ -21,7 +21,7 @@ func (h *handler) CreateUser(c *fiber.Ctx) error {
 		Username string `json:"username" validate:"required"`
 		Password string `json:"password" validate:"required"`
 	}
-	if ok, res := h.BodyParseAndValidate(c, &body); !ok {
+	if ok, res := h.bodyParseAndValidate(c, &body); !ok {
 		return res
 	}
 
