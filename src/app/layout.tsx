@@ -1,7 +1,6 @@
 import ContextProviders from "@/contexts/ContextProviders";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { FC } from "react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,14 +15,16 @@ interface RootLayoutProps {
 	children: React.ReactNode;
 }
 
-const RootLayout: FC<RootLayoutProps> = (props: RootLayoutProps) => {
+export default function RootLayout(props: RootLayoutProps) {
 	return (
 		<html lang="en">
 			<body className={inter.className}>
-				<ContextProviders>{props.children}</ContextProviders>
+				<ContextProviders>
+					<div className="min-h-screen w-full bg-gradient-to-b from-white to-slate-300">
+						{props.children}
+					</div>
+				</ContextProviders>
 			</body>
 		</html>
 	);
-};
-
-export default RootLayout;
+}
