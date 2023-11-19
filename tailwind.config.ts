@@ -10,6 +10,12 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
+			colors: {
+				"sky-blue": "#3AB8FF",
+			},
+			fontFamily: {
+				roboto: ["Roboto", "sans-serif"],
+			},
 			backgroundImage: {
 				"gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
 				"gradient-conic":
