@@ -39,6 +39,7 @@ func (h *handler) validate(data any) []response.FieldValidation {
 				Field:         fieldJSONName,
 				ReceivedValue: err.Value(),
 				Message:       "Validation failed for: " + err.Tag(),
+				Tag:           err.Tag(),
 			})
 		}
 	}

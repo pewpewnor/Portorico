@@ -10,10 +10,10 @@ import (
 var Tables = []string{"user", "session"}
 
 type Base struct {
-	Id        uuid.UUID    `db:"id"`
-	CreatedAt time.Time    `db:"created_at"`
-	UpdatedAt time.Time    `db:"updated_at"`
-	DeletedAt sql.NullTime `db:"deleted_at"`
+	Id        uuid.UUID    `db:"id" json:"id"`
+	CreatedAt time.Time    `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time    `db:"updated_at" json:"updatedAt"`
+	DeletedAt sql.NullTime `db:"deleted_at" json:"-"`
 }
 
 func (b *Base) FillBaseInsert() {
@@ -32,12 +32,12 @@ func (b *Base) FillBaseDelete() {
 
 type User struct {
 	Base
-	Username string `db:"username"`
-	Password string `db:"password"`
+	Username string `db:"username" json:"username"`
+	Password string `db:"password" json:"password"`
 }
 
 type Session struct {
 	Base
-	Token  string    `db:"token"`
-	UserId uuid.UUID `db:"user_id"`
+	Token  string    `db:"token" json:"token"`
+	UserId uuid.UUID `db:"user_id" json:"userId"`
 }

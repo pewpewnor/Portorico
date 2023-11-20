@@ -2,8 +2,9 @@ package response
 
 type FieldValidation struct {
 	Field         string `json:"field"`
-	ReceivedValue any    `json:"received_value"`
+	ReceivedValue any    `json:"receivedValue"`
 	Message       string `json:"message"`
+	Tag           string `json:"tag"`
 }
 
 func RequestMalformed(details string) map[string]any {
