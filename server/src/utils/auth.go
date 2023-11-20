@@ -21,10 +21,6 @@ func EncryptPassword(password string) (string, error) {
 	return string(hashedPasswordBytes), err
 }
 
-func VerifySamePassword(password string, hashedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(password), []byte(hashedPassword))
-	if err != nil {
-		return false
-	}
-	return true
+func VerifySamePassword(hashedPassword string, password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
