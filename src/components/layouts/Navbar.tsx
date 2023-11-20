@@ -12,9 +12,12 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export default function Navbar() {
+	const pathName = usePathname();
+
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const menuItems = [
@@ -50,22 +53,22 @@ export default function Navbar() {
 			</NavbarContent>
 
 			<NavbarContent className="hidden gap-6 sm:flex" justify="center">
-				<NavbarItem isActive>
+				<NavbarItem isActive={pathName === "/"}>
 					<Link color="foreground" href="/">
 						Home
 					</Link>
 				</NavbarItem>
-				<NavbarItem>
+				<NavbarItem isActive={pathName === "/dasboard"}>
 					<Link color="foreground" href="dashboard">
 						My Websites
 					</Link>
 				</NavbarItem>
-				<NavbarItem>
+				<NavbarItem isActive={pathName === "/premium"}>
 					<Link color="foreground" href="#">
 						Premium
 					</Link>
 				</NavbarItem>
-				<NavbarItem>
+				<NavbarItem isActive={pathName === "/help"}>
 					<Link color="foreground" href="#">
 						Help
 					</Link>
