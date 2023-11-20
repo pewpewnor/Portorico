@@ -4,31 +4,49 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/pewpewnor/portorico/server/src/model/response"
 )
 
 func (h *handler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userRepository.GetAll()
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot get all users"))
+		return c.SendStatus(http.StatusInternalServerError)
 	}
 
-	return c.Status(http.StatusOK).JSON(response.Success("successfully found all users", users))
+	return c.Status(http.StatusOK).JSON(map[string]any{"users": users})
 }
 
 func (h *handler) CreateUser(c *fiber.Ctx) error {
 	var body struct {
-		Username string `json:"username" validate:"required"`
-		Password string `json:"password" validate:"required"`
+		Username string `json:"username"`
+		Password string `json:"password"`
 	}
-	if ok, res := h.bodyParseAndValidate(c, &body); !ok {
-		return res
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(http.StatusBadRequest)
+	}
+
+	validations := map[string]string{}
+	if body.Username == "" {
+		validations["username"] = "username must not be empty"
+	}
+	if body.Password == "" {
+		validations["password"] = "password must not be empty"
+	}
+	if len(validations) == 0 {
+		return c.Status(http.StatusBadRequest).JSON(validations)
+	}
+
+	user := h.userRepository.GetByUsername(body.Username)
+	if user != nil {
+		validations["username"] =
+			"username is already taken, please try another one"
+		return c.Status(http.StatusBadRequest).JSON(
+			map[string]any{"validations": validations})
 	}
 
 	user, _, err := h.userRepository.Create(body.Username, body.Password)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(response.InternalProblem("server cannot create user"))
+		return c.SendStatus(http.StatusInternalServerError)
 	}
 
-	return c.Status(http.StatusOK).JSON(response.Success("successfully created user", user))
+	return c.Status(http.StatusOK).JSON(map[string]any{"user": user})
 }
