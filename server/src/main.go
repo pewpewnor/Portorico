@@ -127,7 +127,8 @@ func main() {
 	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
 
 	log.Infof("starting server on PORT %v...", PORT)
-	if err := app.ListenTLS(":"+PORT, "server.crt", "server.key"); err != nil {
+	// if err := app.ListenTLS(":"+PORT, "server.crt", "server.key"); err != nil {
+	if err := app.Listen(":" + PORT); err != nil {
 		log.Fatalf("cannot start server on PORT %v: %v\n", PORT, err)
 	}
 }
