@@ -1,52 +1,80 @@
 package handlers
 
 import (
-	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *handler) GetAllUsers(c *fiber.Ctx) error {
+func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.userRepository.GetAll()
 	if err != nil {
-		return c.SendStatus(http.StatusInternalServerError)
+		return c.SendStatus(500)
 	}
 
-	return c.Status(http.StatusOK).JSON(map[string]any{"users": users})
+	return c.Status(200).JSON(map[string]any{"users": users})
 }
 
-func (h *handler) CreateUser(c *fiber.Ctx) error {
+func (h *Handler) Register(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 	if err := c.BodyParser(&body); err != nil {
-		return c.SendStatus(http.StatusBadRequest)
+		return c.SendStatus(400)
 	}
 
 	validations := map[string]string{}
-	if body.Username == "" {
-		validations["username"] = "username must not be empty"
-	}
-	if body.Password == "" {
-		validations["password"] = "password must not be empty"
-	}
+	h.validateStringNotEmpty(validations, "username", body.Username)
+	h.validateStringNotEmpty(validations, "password", body.Password)
 	if len(validations) > 0 {
-		return c.Status(http.StatusBadRequest).JSON(map[string]any{"validations": validations})
+		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
 	user := h.userRepository.GetByUsername(body.Username)
 	if user != nil {
 		validations["username"] =
 			"username is already taken, please try a different one"
-		return c.Status(http.StatusBadRequest).JSON(
-			map[string]any{"validations": validations})
+		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
-	user, _, err := h.userRepository.Create(body.Username, body.Password)
+	user, session, err := h.userRepository.Create(body.Username, body.Password)
 	if err != nil {
-		return c.SendStatus(http.StatusInternalServerError)
+		return c.SendStatus(500)
 	}
 
-	return c.Status(http.StatusOK).JSON(map[string]any{"user": user})
+	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(3 * time.Minute)})
+
+	return c.Status(200).JSON(map[string]any{"user": user})
+}
+
+func (h *Handler) Login(c *fiber.Ctx) error {
+	var body struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(400)
+	}
+
+	validations := map[string]string{}
+	h.validateStringNotEmpty(validations, "username", body.Username)
+	h.validateStringNotEmpty(validations, "password", body.Password)
+	if len(validations) > 0 {
+		return c.Status(400).JSON(map[string]any{"validations": validations})
+	}
+
+	user, session, valid, err := h.userRepository.GetByCredentials(body.Username, body.Password)
+	if err != nil {
+		return c.SendStatus(500)
+	}
+	if !valid {
+		validations["general"] =
+			"username or password is incorrect, please try again"
+		return c.Status(400).JSON(map[string]any{"validations": validations})
+	}
+
+	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(3 * time.Minute)})
+
+	return c.Status(200).JSON(map[string]any{"user": user})
 }

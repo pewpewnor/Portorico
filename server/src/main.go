@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/golang-migrate/migrate/v4"
@@ -21,6 +22,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/pewpewnor/portorico/server/src/handlers"
 	"github.com/pewpewnor/portorico/server/src/model"
+	"github.com/pewpewnor/portorico/server/src/repository"
 )
 
 func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *sqlx.DB) {
@@ -63,27 +65,19 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 	log.Info("server has closed database connection")
 }
 
-func main() {
-	log.SetReportCaller(true)
+func startRoutines(app *fiber.App, db *sqlx.DB) {
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := &sync.WaitGroup{}
 
-	if err := godotenv.Load(".env.local"); err != nil {
-		log.Fatalf("cannot load .env.local file: %v\n", err)
-	}
+	wg.Add(1)
+	go cleanAllSoftDelete(ctx, wg, db)
 
-	URI := os.Getenv("DB_URI")
-	if URI == "" {
-		log.Fatal("environment variable has no 'DB_URI'")
-	}
-	PORT := os.Getenv("SERVER_PORT")
-	if PORT == "" {
-		PORT = "8000"
-	}
+	osChan := make(chan os.Signal, 1)
+	signal.Notify(osChan, os.Interrupt)
+	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
+}
 
-	db, err := sqlx.Connect("postgres", URI)
-	if err != nil {
-		log.Fatal("sqlx cannot connect to database: %v", err)
-	}
-
+func migrateRefreshDatabase(db *sqlx.DB) {
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
 		log.Fatalf("error while creating driver from sqlx for migrator: %v", err)
@@ -101,29 +95,54 @@ func main() {
 	if err := m.Up(); err != nil {
 		log.Fatalf("error while migrating up: %v", err)
 	}
+}
+
+func seedDatabase(db *sqlx.DB) {
+	userRepository := repository.NewLiveUserRepository(db)
+	userRepository.Create("alpha", "1234")
+}
+
+func main() {
+	log.SetReportCaller(true)
+
+	if err := godotenv.Load(".env.local"); err != nil {
+		log.Fatalf("cannot load .env.local file: %v\n", err)
+	}
+	URI := os.Getenv("DB_URI")
+	if URI == "" {
+		log.Fatal("environment variable has no 'DB_URI'")
+	}
+	PORT := os.Getenv("SERVER_PORT")
+	if PORT == "" {
+		PORT = "8000"
+	}
+
+	db, err := sqlx.Connect("postgres", URI)
+	if err != nil {
+		log.Fatal("sqlx cannot connect to database: %v", err)
+	}
+
+	migrateRefreshDatabase(db)
+	seedDatabase(db)
 
 	app := fiber.New(fiber.Config{
 		Immutable: true,
 	})
+	h := handlers.NewHandler(db)
+
 	app.Use(cors.New())
 	app.Use(helmet.New())
-
-	h := handlers.NewHandler(db)
+	app.Use(encryptcookie.New(encryptcookie.Config{
+		Key: encryptcookie.GenerateKey(),
+	}))
 
 	app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
 	app.Get("/users", h.GetAllUsers)
-	app.Post("/user", h.CreateUser)
+	app.Post("/register", h.Register)
+	app.Post("/login", h.Login)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	wg := &sync.WaitGroup{}
-
-	wg.Add(1)
-	go cleanAllSoftDelete(ctx, wg, db)
-
-	osChan := make(chan os.Signal, 1)
-	signal.Notify(osChan, os.Interrupt)
-	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
+	startRoutines(app, db)
 
 	log.Infof("starting server on PORT %v...", PORT)
 	// if err := app.ListenTLS(":"+PORT, "server.crt", "server.key"); err != nil {
