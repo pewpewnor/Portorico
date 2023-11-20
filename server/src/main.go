@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -26,7 +25,7 @@ import (
 
 func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *sqlx.DB) {
 	defer wg.Done()
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(1 * time.Hour)
 
 	for {
 		select {
@@ -45,7 +44,7 @@ func cleanAllSoftDelete(ctx context.Context, wg *sync.WaitGroup, db *sqlx.DB) {
 }
 
 func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx.DB, cancel context.CancelFunc, wg *sync.WaitGroup) {
-	_ = <-osChan
+	<-osChan
 
 	err := app.Shutdown()
 	if err != nil {
@@ -109,7 +108,7 @@ func main() {
 	app.Use(cors.New())
 	app.Use(helmet.New())
 
-	h := handlers.NewHandler(db, validator.New())
+	h := handlers.NewHandler(db)
 
 	app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
@@ -122,7 +121,7 @@ func main() {
 	wg.Add(1)
 	go cleanAllSoftDelete(ctx, wg, db)
 
-	osChan := make(chan os.Signal)
+	osChan := make(chan os.Signal, 1)
 	signal.Notify(osChan, os.Interrupt)
 	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
 
