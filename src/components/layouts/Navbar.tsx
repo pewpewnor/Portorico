@@ -27,34 +27,36 @@ export default function Navbar() {
 	];
 
 	return (
-		<NextNavbar onMenuOpenChange={setIsMenuOpen}>
+		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
 			<NavbarContent>
 				<NavbarMenuToggle
 					aria-label={isMenuOpen ? "Close menu" : "Open menu"}
 					className="sm:hidden"
 				/>
 				<NavbarBrand>
-					<Image
-						src="/images/logo.png"
-						width={26}
-						height={26}
-						alt="logo"
-						className="mx-0 h-7 w-7 lg:mx-2"
-					></Image>
-					<p className="hidden text-xl text-inherit sm:block lg:text-2xl">
-						portorico
-					</p>
+					<Link href="/" className="flex">
+						<Image
+							src="/images/logo.png"
+							width={26}
+							height={26}
+							alt="logo"
+							className="mx-0 h-7 w-7 select-none lg:mx-2"
+						></Image>
+						<p className="hidden select-none text-xl text-inherit sm:block lg:text-2xl">
+							portorico
+						</p>
+					</Link>
 				</NavbarBrand>
 			</NavbarContent>
 
 			<NavbarContent className="hidden gap-6 sm:flex" justify="center">
-				<NavbarItem>
-					<Link color="foreground" href="#">
+				<NavbarItem isActive>
+					<Link color="foreground" href="/">
 						Home
 					</Link>
 				</NavbarItem>
-				<NavbarItem isActive>
-					<Link color="foreground" href="#">
+				<NavbarItem>
+					<Link color="foreground" href="dashboard">
 						My Websites
 					</Link>
 				</NavbarItem>
@@ -71,10 +73,15 @@ export default function Navbar() {
 			</NavbarContent>
 			<NavbarContent justify="end">
 				<NavbarItem className="flex">
-					<Link href="#">Login</Link>
+					<Link href="/login">Login</Link>
 				</NavbarItem>
 				<NavbarItem>
-					<Button as={Link} color="primary" href="#" variant="flat">
+					<Button
+						as={Link}
+						color="primary"
+						href="/register"
+						variant="flat"
+					>
 						Sign Up
 					</Button>
 				</NavbarItem>
