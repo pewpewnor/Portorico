@@ -11,8 +11,8 @@ var Tables = []string{"user", "session"}
 
 type Base struct {
 	Id        uuid.UUID    `db:"id" json:"id"`
-	CreatedAt time.Time    `db:"created_at" json:"createdAt"`
-	UpdatedAt time.Time    `db:"updated_at" json:"updatedAt"`
+	CreatedAt time.Time    `db:"created_at" json:"-"`
+	UpdatedAt time.Time    `db:"updated_at" json:"-"`
 	DeletedAt sql.NullTime `db:"deleted_at" json:"-"`
 }
 
@@ -33,7 +33,7 @@ func (b *Base) FillBaseDelete() {
 type User struct {
 	Base
 	Username string `db:"username" json:"username"`
-	Password string `db:"password" json:"password"`
+	Password string `db:"password" json:"-"`
 }
 
 type Session struct {
