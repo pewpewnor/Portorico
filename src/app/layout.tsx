@@ -1,3 +1,4 @@
+import Navbar from "@/components/layouts/Navbar";
 import ContextProviders from "@/contexts/ContextProviders";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -20,7 +21,8 @@ export default function RootLayout(props: RootLayoutProps) {
 		<html lang="en">
 			<body className={inter.className}>
 				<ContextProviders>
-					<div className="min-h-screen w-full bg-gradient-to-b from-white to-slate-300">
+					<div className="flex h-screen min-h-screen w-full flex-col bg-gradient-to-b from-slate-50 to-slate-300">
+						<Navbar />
 						{props.children}
 					</div>
 				</ContextProviders>
