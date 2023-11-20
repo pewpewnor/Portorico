@@ -31,14 +31,14 @@ func (h *handler) CreateUser(c *fiber.Ctx) error {
 	if body.Password == "" {
 		validations["password"] = "password must not be empty"
 	}
-	if len(validations) == 0 {
-		return c.Status(http.StatusBadRequest).JSON(validations)
+	if len(validations) > 0 {
+		return c.Status(http.StatusBadRequest).JSON(map[string]any{"validations": validations})
 	}
 
 	user := h.userRepository.GetByUsername(body.Username)
 	if user != nil {
 		validations["username"] =
-			"username is already taken, please try another one"
+			"username is already taken, please try a different one"
 		return c.Status(http.StatusBadRequest).JSON(
 			map[string]any{"validations": validations})
 	}
