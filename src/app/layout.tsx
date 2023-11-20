@@ -21,7 +21,7 @@ export default function RootLayout(props: RootLayoutProps) {
 		<html lang="en">
 			<body className={inter.className}>
 				<ContextProviders>
-					<div className="flex h-screen min-h-screen w-full flex-col bg-gradient-to-b from-slate-50 to-slate-300">
+					<div className="flex min-h-screen w-full flex-col bg-gradient-to-b from-slate-50 to-slate-300">
 						<Navbar />
 						{props.children}
 					</div>
