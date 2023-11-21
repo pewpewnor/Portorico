@@ -33,8 +33,8 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	validations := map[string]string{}
 	h.validateStringNotEmpty(validations, "name", "name", body.Name)
 	h.validateStringNotEmpty(validations, "templateName", "template name", body.Name)
-	if strings.ContainsAny(body.Name, "/&?=:%") {
-		validations["templateName"] = "template name must not contain characters such as '/', '&', '?', '=', ':', '%'"
+	if strings.ContainsAny(body.Name, "/&?=:%\\") {
+		validations["templateName"] = "template name must not contain characters such as '/', '&', '?', '=', ':', '%', '\\'"
 	}
 	if strings.Contains(body.Name, " ") {
 		validations["templateName"] = "template name must not contain any spaces"
