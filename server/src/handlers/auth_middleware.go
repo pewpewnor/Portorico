@@ -1,11 +1,13 @@
 package handlers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 func (h *Handler) AuthMiddleware(c *fiber.Ctx) error {
-	token := c.Get("Authorization")
+	token := c.Cookies("session")
 	if token == "" {
-		return c.SendStatus(400)
+		return c.SendStatus(401)
 	}
 
 	user := h.userRepository.GetBySessionToken(token)

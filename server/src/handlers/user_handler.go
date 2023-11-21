@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
-	users, err := h.userRepository.GetAll()
+	users, err := h.userRepository.Find()
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -25,8 +25,8 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	}
 
 	validations := map[string]string{}
-	h.validateStringNotEmpty(validations, "username", body.Username)
-	h.validateStringNotEmpty(validations, "password", body.Password)
+	h.validateStringNotEmpty(validations, "username", "username", body.Username)
+	h.validateStringNotEmpty(validations, "password", "password", body.Password)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
@@ -58,8 +58,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	}
 
 	validations := map[string]string{}
-	h.validateStringNotEmpty(validations, "username", body.Username)
-	h.validateStringNotEmpty(validations, "password", body.Password)
+	h.validateStringNotEmpty(validations, "username", "username", body.Username)
+	h.validateStringNotEmpty(validations, "password", "password", body.Password)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
