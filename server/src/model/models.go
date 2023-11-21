@@ -11,8 +11,8 @@ var Tables = []string{"user", "session"}
 
 type Base struct {
 	Id        uuid.UUID    `db:"id" json:"id"`
-	CreatedAt time.Time    `db:"created_at" json:"-"`
-	UpdatedAt time.Time    `db:"updated_at" json:"-"`
+	CreatedAt time.Time    `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time    `db:"updated_at" json:"updatedAt"`
 	DeletedAt sql.NullTime `db:"deleted_at" json:"-"`
 }
 
@@ -40,4 +40,13 @@ type Session struct {
 	Base
 	Token  string    `db:"token" json:"token"`
 	UserId uuid.UUID `db:"user_id" json:"userId"`
+}
+
+type Website struct {
+	Base
+	Name              string    `db:"name" json:"name"`
+	TemplateName      string    `db:"template_name" json:"templateName"`
+	VisitorsThisMonth int32     `db:"visitors_this_month" json:"visitorsThisMonth"`
+	Content           string    `db:"content" json:"content"`
+	UserId            uuid.UUID `db:"user_id" json:"userId"`
 }
