@@ -102,8 +102,8 @@ func seedDatabase(db *sqlx.DB) {
 	user, _, _ := userRepository.Create("a", "a")
 
 	websiteRepository := repository.NewLiveWebsiteRepository(db)
-	websiteRepository.Create("my website", "template name", user.Id)
-	websiteRepository.Create("my website 2", "template name 2", user.Id)
+	websiteRepository.Create("my-website", "template name", user.Id)
+	websiteRepository.Create("my-website_2", "template name 2", user.Id)
 }
 
 func main() {
