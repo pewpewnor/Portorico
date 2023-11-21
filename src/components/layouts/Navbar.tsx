@@ -1,5 +1,6 @@
 "use client";
 
+import LoggedInContext from "@/contexts/LoggedInContext";
 import {
 	Button,
 	NavbarBrand,
@@ -13,37 +14,37 @@ import {
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 
 const menus = [
 	{
 		name: "Home",
 		href: "/",
+		hiddenIfLoggedIn: true,
 	},
 	{
 		name: "My Websites",
 		href: "/dashboard",
 	},
 	{
-		name: "Premium",
-		href: "/premium",
-	},
-	{
-		name: "Help",
-		href: "/help",
+		name: "Templates",
+		href: "/templates",
 	},
 ];
 
 export default function Navbar() {
+	const router = useRouter();
 	const pathName = usePathname();
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isLoggedIn, refreshLoggedIn] = useContext(LoggedInContext);
 
-	useEffect(() => {
-		setIsLoggedIn(!!Cookies.get("session"));
-	}, []);
+	function handleLogout() {
+		Cookies.remove("session");
+		refreshLoggedIn();
+		router.push("/");
+	}
 
 	return (
 		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
@@ -70,7 +71,11 @@ export default function Navbar() {
 
 			<NavbarContent className="hidden gap-6 sm:flex" justify="center">
 				{menus.map((menu, index) => (
-					<NavbarItem key={index} isActive={pathName === menu.href}>
+					<NavbarItem
+						key={index}
+						isActive={pathName === menu.href}
+						hidden={isLoggedIn && menu.hiddenIfLoggedIn}
+					>
 						<Link color="foreground" href={menu.href}>
 							{menu.name}
 						</Link>
@@ -78,19 +83,37 @@ export default function Navbar() {
 				))}
 			</NavbarContent>
 			<NavbarContent justify="end">
-				{!isLoggedIn && (
+				{isLoggedIn ? (
+					<>
+						<NavbarItem>
+							<Link href="/create">
+								<Button
+									color="secondary"
+									variant="flat"
+									className="font-bold"
+								>
+									Build New Website
+								</Button>
+							</Link>
+						</NavbarItem>
+						<NavbarItem
+							className="flex cursor-pointer"
+							onClick={handleLogout}
+						>
+							<p>Logout</p>
+						</NavbarItem>
+					</>
+				) : (
 					<>
 						<NavbarItem className="flex">
 							<Link href="/login">Login</Link>
 						</NavbarItem>
 						<NavbarItem>
-							<Button
-								color="primary"
-								href="/register"
-								variant="flat"
-							>
-								Sign Up
-							</Button>
+							<Link href="/register">
+								<Button color="primary" variant="flat">
+									Sign Up
+								</Button>
+							</Link>
 						</NavbarItem>
 					</>
 				)}

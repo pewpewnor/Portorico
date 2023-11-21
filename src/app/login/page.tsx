@@ -1,6 +1,7 @@
 "use client";
 
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoggedInContext from "@/contexts/LoggedInContext";
 import client from "@/lib/axios";
 import { User } from "@/types/model";
 import { Validations } from "@/types/responses";
@@ -10,7 +11,7 @@ import moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 
 type LoginResponse = {
 	user?: User;
@@ -19,6 +20,7 @@ type LoginResponse = {
 
 export default function LoginPage() {
 	const router = useRouter();
+	const [_, refreshLoggedIn] = useContext(LoggedInContext);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
@@ -53,6 +55,7 @@ export default function LoginPage() {
 					Cookies.set("username", inputData.username, cookieConfig);
 					Cookies.set("password", inputData.password, cookieConfig);
 				}
+				refreshLoggedIn();
 				router.push("/dashboard");
 			}
 		} catch (error) {
