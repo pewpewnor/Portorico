@@ -43,7 +43,7 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(3 * time.Minute)})
+	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(24 * time.Hour)})
 
 	return c.Status(200).JSON(map[string]any{"user": user})
 }
@@ -74,7 +74,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
-	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(3 * time.Minute)})
+	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(24 * time.Hour)})
 
 	return c.Status(200).JSON(map[string]any{"user": user})
 }
