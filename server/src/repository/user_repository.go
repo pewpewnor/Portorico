@@ -63,6 +63,15 @@ func (r *LiveUserRepository) GetByCredentials(username string, password string) 
 	return user, session, true, err
 }
 
+func (r *LiveUserRepository) GetBySessionToken(token string) *model.User {
+	user := &model.User{}
+	err := r.db.Get(user, "SELECT users.* FROM users JOIN sessions ON sessions.user_id = users.id WHERE sessions.token = $1", token)
+	if err != nil {
+		return nil
+	}
+	return user
+}
+
 func (r *LiveUserRepository) Create(username string, password string) (*model.User, *model.Session, error) {
 	hashedPassword, err := utils.EncryptPassword(password)
 	if err != nil {

@@ -6,11 +6,12 @@ import (
 )
 
 type Handler struct {
-	userRepository *repository.LiveUserRepository
+	userRepository    *repository.LiveUserRepository
+	websiteRepository *repository.LiveWebsiteRepository
 }
 
 func NewHandler(db *sqlx.DB) *Handler {
-	return &Handler{repository.NewLiveUserRepository(db)}
+	return &Handler{repository.NewLiveUserRepository(db), repository.NewLiveWebsiteRepository(db)}
 }
 
 func (h *Handler) validateStringNotEmpty(validations map[string]string, fieldName string, fieldValue string) {

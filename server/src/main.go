@@ -142,6 +142,10 @@ func main() {
 	app.Post("/register", h.Register)
 	app.Post("/login", h.Login)
 
+	app.Use(h.AuthMiddleware)
+
+	app.Post("/website", h.CreateWebsite)
+
 	startRoutines(app, db)
 
 	log.Infof("starting server on PORT %v...", PORT)
