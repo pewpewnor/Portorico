@@ -14,7 +14,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const menus = [
 	{
@@ -39,8 +39,11 @@ export default function Navbar() {
 	const pathName = usePathname();
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const notLoggedIn = !Cookies.get("session");
+	useEffect(() => {
+		setIsLoggedIn(!!Cookies.get("session"));
+	}, []);
 
 	return (
 		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
@@ -74,23 +77,24 @@ export default function Navbar() {
 					</NavbarItem>
 				))}
 			</NavbarContent>
-			{notLoggedIn && (
-				<NavbarContent justify="end">
-					<NavbarItem className="flex">
-						<Link href="/login">Login</Link>
-					</NavbarItem>
-					<NavbarItem>
-						<Button
-							as={Link}
-							color="primary"
-							href="/register"
-							variant="flat"
-						>
-							Sign Up
-						</Button>
-					</NavbarItem>
-				</NavbarContent>
-			)}
+			<NavbarContent justify="end">
+				{!isLoggedIn && (
+					<>
+						<NavbarItem className="flex">
+							<Link href="/login">Login</Link>
+						</NavbarItem>
+						<NavbarItem>
+							<Button
+								color="primary"
+								href="/register"
+								variant="flat"
+							>
+								Sign Up
+							</Button>
+						</NavbarItem>
+					</>
+				)}
+			</NavbarContent>
 			<NavbarMenu>
 				{menus.map((menu, index) => (
 					<NavbarMenuItem
