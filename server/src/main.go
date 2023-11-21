@@ -99,7 +99,11 @@ func migrateRefreshDatabase(db *sqlx.DB) {
 
 func seedDatabase(db *sqlx.DB) {
 	userRepository := repository.NewLiveUserRepository(db)
-	userRepository.Create("alpha", "1234")
+	user, _, _ := userRepository.Create("a", "a")
+
+	websiteRepository := repository.NewLiveWebsiteRepository(db)
+	websiteRepository.Create("my website", "template name", user.Id)
+	websiteRepository.Create("my website 2", "template name 2", user.Id)
 }
 
 func main() {
@@ -144,6 +148,7 @@ func main() {
 
 	app.Use(h.AuthMiddleware)
 
+	app.Get("/websites", h.FindWebsitesOwnedByUser)
 	app.Post("/website", h.CreateWebsite)
 
 	startRoutines(app, db)

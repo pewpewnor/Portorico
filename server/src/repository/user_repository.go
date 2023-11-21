@@ -27,7 +27,7 @@ func (r *LiveUserRepository) createSession(userId uuid.UUID) (*model.Session, er
 	return session, nil
 }
 
-func (r *LiveUserRepository) GetAll() ([]model.User, error) {
+func (r *LiveUserRepository) Find() ([]model.User, error) {
 	users := []model.User{}
 	if err := r.db.Select(&users, "SELECT * FROM users"); err != nil {
 		log.Errorf("server cannot get all users: %v", err)
@@ -39,7 +39,7 @@ func (r *LiveUserRepository) GetAll() ([]model.User, error) {
 
 func (r *LiveUserRepository) GetByUsername(name string) *model.User {
 	user := &model.User{}
-	if err := r.db.Get(user, "SELECT * FROM users WHERE username=$1", name); err != nil {
+	if err := r.db.Get(user, "SELECT * FROM users WHERE username = $1", name); err != nil {
 		return nil
 	}
 
@@ -48,7 +48,7 @@ func (r *LiveUserRepository) GetByUsername(name string) *model.User {
 
 func (r *LiveUserRepository) GetByCredentials(username string, password string) (*model.User, *model.Session, bool, error) {
 	user := &model.User{}
-	if err := r.db.Get(user, "SELECT * FROM users WHERE username=$1", username); err != nil {
+	if err := r.db.Get(user, "SELECT * FROM users WHERE username = $1", username); err != nil {
 		return nil, nil, false, nil
 	}
 	if !utils.VerifySamePassword(user.Password, password) {

@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -44,9 +45,9 @@ type Session struct {
 
 type Website struct {
 	Base
-	Name              string    `db:"name" json:"name"`
-	TemplateName      string    `db:"template_name" json:"templateName"`
-	VisitorsThisMonth int32     `db:"visitors_this_month" json:"visitorsThisMonth"`
-	Content           string    `db:"content" json:"content"`
-	UserId            uuid.UUID `db:"user_id" json:"userId"`
+	Name              string          `db:"name" json:"name"`
+	TemplateName      string          `db:"template_name" json:"templateName"`
+	VisitorsThisMonth int32           `db:"visitors_this_month" json:"visitorsThisMonth"`
+	Content           json.RawMessage `db:"content" json:"content"`
+	UserId            uuid.UUID       `db:"user_id" json:"userId"`
 }
