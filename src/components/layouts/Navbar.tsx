@@ -10,24 +10,37 @@ import {
 	NavbarMenuToggle,
 	Navbar as NextNavbar,
 } from "@nextui-org/react";
+import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+const menus = [
+	{
+		name: "Home",
+		href: "/",
+	},
+	{
+		name: "My Websites",
+		href: "/dashboard",
+	},
+	{
+		name: "Premium",
+		href: "/premium",
+	},
+	{
+		name: "Help",
+		href: "/help",
+	},
+];
 
 export default function Navbar() {
 	const pathName = usePathname();
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-	const menuItems = [
-		"Home",
-		"My Websites",
-		"Premium",
-		"Analytics",
-		"Log Out",
-		"Help & Feedback",
-	];
+	const notLoggedIn = !Cookies.get("session");
 
 	return (
 		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
@@ -53,57 +66,43 @@ export default function Navbar() {
 			</NavbarContent>
 
 			<NavbarContent className="hidden gap-6 sm:flex" justify="center">
-				<NavbarItem isActive={pathName === "/"}>
-					<Link color="foreground" href="/">
-						Home
-					</Link>
-				</NavbarItem>
-				<NavbarItem isActive={pathName === "/dasboard"}>
-					<Link color="foreground" href="dashboard">
-						My Websites
-					</Link>
-				</NavbarItem>
-				<NavbarItem isActive={pathName === "/premium"}>
-					<Link color="foreground" href="#">
-						Premium
-					</Link>
-				</NavbarItem>
-				<NavbarItem isActive={pathName === "/help"}>
-					<Link color="foreground" href="#">
-						Help
-					</Link>
-				</NavbarItem>
+				{menus.map((menu, index) => (
+					<NavbarItem key={index} isActive={pathName === menu.href}>
+						<Link color="foreground" href={menu.href}>
+							{menu.name}
+						</Link>
+					</NavbarItem>
+				))}
 			</NavbarContent>
-			<NavbarContent justify="end">
-				<NavbarItem className="flex">
-					<Link href="/login">Login</Link>
-				</NavbarItem>
-				<NavbarItem>
-					<Button
-						as={Link}
-						color="primary"
-						href="/register"
-						variant="flat"
-					>
-						Sign Up
-					</Button>
-				</NavbarItem>
-			</NavbarContent>
-			<NavbarMenu>
-				{menuItems.map((item, index) => (
-					<NavbarMenuItem key={`${item}-${index}`}>
-						<Link
-							color={
-								index === 2
-									? "primary"
-									: index === menuItems.length - 1
-									  ? "danger"
-									  : "foreground"
-							}
-							className="w-full"
-							href="#"
+			{notLoggedIn && (
+				<NavbarContent justify="end">
+					<NavbarItem className="flex">
+						<Link href="/login">Login</Link>
+					</NavbarItem>
+					<NavbarItem>
+						<Button
+							as={Link}
+							color="primary"
+							href="/register"
+							variant="flat"
 						>
-							{item}
+							Sign Up
+						</Button>
+					</NavbarItem>
+				</NavbarContent>
+			)}
+			<NavbarMenu>
+				{menus.map((menu, index) => (
+					<NavbarMenuItem
+						key={index}
+						isActive={pathName === menu.href}
+					>
+						<Link
+							color="foreground"
+							className="w-full"
+							href={menu.href}
+						>
+							{menu.name}
 						</Link>
 					</NavbarMenuItem>
 				))}
