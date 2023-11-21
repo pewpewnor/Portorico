@@ -20,7 +20,7 @@ type LoginResponse = {
 export default function LoginPage() {
 	const router = useRouter();
 
-	const [isLoading, setLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
 	const [inputData, setInputData] = useState({
 		username: Cookies.get("username") ?? "",
@@ -36,7 +36,7 @@ export default function LoginPage() {
 	}
 
 	async function handleLogin() {
-		setLoading(true);
+		setIsLoading(true);
 		setValidations({});
 
 		try {
@@ -61,7 +61,7 @@ export default function LoginPage() {
 			});
 		}
 
-		setLoading(false);
+		setIsLoading(false);
 	}
 
 	return (

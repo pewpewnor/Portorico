@@ -18,7 +18,7 @@ type RegisterResponse = {
 export default function RegisterPage() {
 	const router = useRouter();
 
-	const [isLoading, setLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
 	const [inputData, setInputData] = useState({ username: "", password: "" });
 
@@ -30,7 +30,7 @@ export default function RegisterPage() {
 	}
 
 	async function handleRegister() {
-		setLoading(true);
+		setIsLoading(true);
 		setValidations({});
 
 		try {
@@ -48,7 +48,7 @@ export default function RegisterPage() {
 			});
 		}
 
-		setLoading(false);
+		setIsLoading(false);
 	}
 
 	return (
