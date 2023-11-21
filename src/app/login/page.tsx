@@ -1,15 +1,16 @@
 "use client";
 
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import AuthContext from "@/contexts/AuthContext";
 import client from "@/lib/axios";
 import { User } from "@/types/model";
 import { Validations } from "@/types/responses";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Checkbox, Input } from "@nextui-org/react";
+import Cookies from "js-cookie";
+import moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useContext, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 type LoginResponse = {
 	user?: User;
@@ -17,12 +18,15 @@ type LoginResponse = {
 };
 
 export default function LoginPage() {
-	const [_, setUser] = useContext(AuthContext);
 	const router = useRouter();
 
 	const [isLoading, setLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
-	const [inputData, setInputData] = useState({ username: "", password: "" });
+	const [inputData, setInputData] = useState({
+		username: Cookies.get("username") ?? "",
+		password: Cookies.get("password") ?? "",
+		rememberMe: false,
+	});
 
 	function handleChange(event: ChangeEvent<HTMLInputElement>) {
 		setInputData((prev) => ({
@@ -42,7 +46,13 @@ export default function LoginPage() {
 			if (res.status == 400 && data.validations) {
 				setValidations(data.validations);
 			} else if (res.status == 200 && data.user) {
-				setUser(data.user);
+				if (inputData.rememberMe) {
+					const cookieConfig = {
+						expires: moment(Date.now()).add(6, "hours").toDate(),
+					};
+					Cookies.set("username", inputData.username, cookieConfig);
+					Cookies.set("password", inputData.password, cookieConfig);
+				}
 				router.push("/dashboard");
 			}
 		} catch (error) {
@@ -74,6 +84,7 @@ export default function LoginPage() {
 						size="lg"
 						className="select-none"
 						name="username"
+						value={inputData.username}
 						onChange={handleChange}
 					/>
 					{validations.username && (
@@ -85,11 +96,24 @@ export default function LoginPage() {
 						size="lg"
 						className="mt-4 select-none"
 						name="password"
+						value={inputData.password}
 						onChange={handleChange}
 					/>
 					{validations.password && (
 						<ErrorMessage message={validations.password} />
 					)}
+					<div className="mt-4 flex">
+						<Checkbox
+							checked={inputData.rememberMe}
+							onChange={() =>
+								setInputData((prev) => ({
+									...prev,
+									rememberMe: !prev.rememberMe,
+								}))
+							}
+						/>
+						<p className="text-sm">Remember Me</p>
+					</div>
 					<Button
 						disabled={isLoading}
 						onPress={handleLogin}
