@@ -26,6 +26,7 @@ const menus = [
 	{
 		name: "Web Editor",
 		href: "/dashboard",
+		hiddenIfNotLoggedIn: true,
 	},
 	{
 		name: "Templates",
@@ -74,7 +75,10 @@ export default function Navbar() {
 					<NavbarItem
 						key={index}
 						isActive={pathName === menu.href}
-						hidden={isLoggedIn && menu.hiddenIfLoggedIn}
+						hidden={
+							(isLoggedIn && menu.hiddenIfLoggedIn) ||
+							(!isLoggedIn && menu.hiddenIfNotLoggedIn)
+						}
 					>
 						<Link color="foreground" href={menu.href}>
 							{menu.name}

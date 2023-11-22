@@ -1,6 +1,5 @@
 "use client";
 
-import LoadingContext from "@/contexts/LoadingContext";
 import client from "@/lib/axios";
 import { Website } from "@/types/model";
 import {
@@ -15,18 +14,18 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 
 export default function DashboardPage() {
 	const router = useRouter();
 
-	const [_, setLoading] = useContext(LoadingContext);
+	const [isLoding, setIsLoading] = useState(false);
 	const [websites, setWebsites] = useState<Website[]>([]);
 
 	useEffect(() => {
 		(async () => {
-			setLoading(true);
+			setIsLoading(true);
 			try {
 				const res = await client.get("/websites");
 				const data = res.data as Website[];
@@ -37,13 +36,13 @@ export default function DashboardPage() {
 					setWebsites(data);
 				}
 			} catch (error) {
-				setLoading(false);
+				setIsLoading(false);
 				router.replace("/login");
 				return;
 			}
-			setLoading(false);
+			setIsLoading(false);
 		})();
-	}, [router, setLoading]);
+	}, [router, setIsLoading]);
 
 	return (
 		<div className="mt-8 flex flex-col gap-6 px-48">
