@@ -32,8 +32,10 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	}
 
 	validations := map[string]string{}
-	h.validateStringNotEmpty(validations, "name", "name", body.Name)
-	h.validateStringNotEmpty(validations, "templateName", "template name", body.Name)
+	h.validateStringMaxLength(validations, "name", "name", 64, body.Name)
+	h.validateStringMaxLength(validations, "templateName", "template name", 255, body.Name)
+	h.validateStringMaxLength(validations, "description", "description", 170, body.Description)
+
 	if strings.ContainsAny(body.Name, "/&?=:%\\") {
 		validations["templateName"] = "template name must not contain characters such as '/', '&', '?', '=', ':', '%', '\\'"
 	}
