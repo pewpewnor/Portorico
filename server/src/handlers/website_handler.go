@@ -9,6 +9,51 @@ import (
 	"github.com/pewpewnor/portorico/server/src/model"
 )
 
+func (h *Handler) GetWebsite(c *fiber.Ctx) error {
+	var body struct {
+		Name string `json:"name"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(400)
+	}
+
+	if body.Name == "" {
+		return c.SendStatus(400)
+	}
+
+	website := h.websiteRepository.GetByName(body.Name)
+	if website == nil {
+		return c.SendStatus(404)
+	}
+
+	return c.Status(200).JSON(website)
+}
+
+func (h *Handler) GetWebsiteForEditing(c *fiber.Ctx) error {
+	var body struct {
+		Name string `json:"name"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(400)
+	}
+
+	if body.Name == "" {
+		return c.SendStatus(400)
+	}
+
+	website := h.websiteRepository.GetByName(body.Name)
+	if website == nil {
+		return c.SendStatus(404)
+	}
+
+	user, _ := c.Locals("user").(*model.User)
+	if website.UserId != user.Id {
+		return c.SendStatus(401)
+	}
+
+	return c.Status(200).JSON(website)
+}
+
 func (h *Handler) FindWebsitesOwnedByUser(c *fiber.Ctx) error {
 	user, ok := c.Locals("user").(*model.User)
 	if !ok {
