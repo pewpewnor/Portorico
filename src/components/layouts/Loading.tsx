@@ -4,7 +4,7 @@ interface LoadingProps {
 
 export default function Loading(props: LoadingProps) {
 	return (
-		<div className="fixed top-0 z-10 flex h-screen w-full flex-col items-center justify-center gap-4 bg-white bg-opacity-75">
+		<div className="fixed left-0 top-0 z-10 flex h-screen w-full flex-col items-center justify-center gap-4 bg-white bg-opacity-75">
 			<svg
 				aria-hidden="true"
 				className="h-12 w-12 animate-spin fill-indigo-600 text-gray-200 dark:text-gray-600"

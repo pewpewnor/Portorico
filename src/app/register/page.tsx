@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/layouts/Loading";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoggedInContext from "@/contexts/LoggedInContext";
 import client from "@/lib/axios";
@@ -18,7 +19,7 @@ type RegisterResponse = {
 
 export default function RegisterPage() {
 	const router = useRouter();
-	const [isLoggedIn, refreshIsLoggedIn] = useContext(LoggedInContext);
+	const [_, refreshIsLoggedIn] = useContext(LoggedInContext);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
@@ -42,8 +43,8 @@ export default function RegisterPage() {
 			if (res.status == 400 && data.validations) {
 				setValidations(data.validations);
 			} else if (res.status == 200 && data.user) {
-				setIsLoading(false);
 				refreshIsLoggedIn();
+				setIsLoading(false);
 				router.push("/dashboard");
 			}
 		} catch (error) {
@@ -55,12 +56,9 @@ export default function RegisterPage() {
 		setIsLoading(false);
 	}
 
-	if (!isLoggedIn) {
-		router.replace("/dashboard");
-	}
-
 	return (
 		<div className="flex h-[92vh] flex-col overflow-hidden md:flex-row">
+			{isLoading && <Loading text="Creating your account..." />}
 			<div className="flex h-full animate-appearance-in flex-col items-center justify-center gap-10 bg-gradient-to-bl from-white to-blue-200 py-16 md:w-1/2">
 				<h1 className="text-5xl font-medium">Sign Up</h1>
 				<div className="mb-4 flex w-full max-w-xs flex-col gap-y-2 rounded bg-white px-8 pb-8 pt-6 shadow-md">
@@ -89,7 +87,6 @@ export default function RegisterPage() {
 						<ErrorMessage message={validations.password} />
 					)}
 					<Button
-						disabled={isLoading}
 						onPress={handleRegister}
 						className="mt-4 w-full rounded border bg-indigo-600 px-8 py-4 text-center text-lg font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-opacity-50"
 					>

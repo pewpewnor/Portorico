@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/layouts/Loading";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoggedInContext from "@/contexts/LoggedInContext";
 import client from "@/lib/axios";
@@ -20,7 +21,7 @@ type LoginResponse = {
 
 export default function LoginPage() {
 	const router = useRouter();
-	const [isLoggedIn, refreshIsLoggedIn] = useContext(LoggedInContext);
+	const [_, refreshIsLoggedIn] = useContext(LoggedInContext);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
@@ -55,8 +56,8 @@ export default function LoginPage() {
 					Cookies.set("username", inputData.username, cookieConfig);
 					Cookies.set("password", inputData.password, cookieConfig);
 				}
-				setIsLoading(false);
 				refreshIsLoggedIn();
+				setIsLoading(false);
 				router.push("/dashboard");
 			}
 		} catch (error) {
@@ -68,12 +69,9 @@ export default function LoginPage() {
 		setIsLoading(false);
 	}
 
-	if (!isLoggedIn) {
-		router.replace("/dashboard");
-	}
-
 	return (
 		<div className="flex h-[92vh] flex-col overflow-hidden md:flex-row">
+			{isLoading && <Loading text="Logging in..." />}
 			<Image
 				src="/images/register.webp"
 				placeholder="blur"
@@ -123,7 +121,6 @@ export default function LoginPage() {
 						<p className="text-sm">Remember Me</p>
 					</div>
 					<Button
-						disabled={isLoading}
 						onPress={handleLogin}
 						className="mt-4 w-full rounded border bg-indigo-600 px-8 py-4 text-center text-lg font-medium text-white hover:bg-indigo-700"
 					>
