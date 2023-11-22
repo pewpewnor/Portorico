@@ -20,7 +20,7 @@ type LoginResponse = {
 
 export default function LoginPage() {
 	const router = useRouter();
-	const [_, refreshIsLoggedIn] = useContext(LoggedInContext);
+	const [isLoggedIn, refreshIsLoggedIn] = useContext(LoggedInContext);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
@@ -66,6 +66,10 @@ export default function LoginPage() {
 		}
 
 		setIsLoading(false);
+	}
+
+	if (!isLoggedIn) {
+		router.replace("/dashboard");
 	}
 
 	return (

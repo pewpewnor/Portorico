@@ -146,10 +146,16 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 		validations["websiteId"] = "websiteId is invalid"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-
-	if h.websiteRepository.GetById(websiteId) == nil {
+	website := h.websiteRepository.GetById(websiteId)
+	if website == nil {
 		return c.SendStatus(400)
 	}
+
+	user, _ := c.Locals("user").(*model.User)
+	if website.UserId != user.Id {
+		return c.SendStatus(403)
+	}
+
 	err = h.websiteRepository.Update(body.Name, body.Description, json.RawMessage(body.Content), websiteId)
 	if err != nil {
 		return c.SendStatus(500)
