@@ -80,7 +80,7 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 
 	validations := map[string]string{}
 	h.validateStringMaxLength(validations, "name", "website name", 64, body.Name)
-	h.validateStringMaxLength(validations, "templateName", "template name", 255, body.Name)
+	h.validateStringMaxLength(validations, "templateName", "template name", 255, body.TemplateName)
 	h.validateStringMaxLength(validations, "description", "description", 170, body.Description)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
@@ -106,7 +106,7 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	return c.Status(200).JSON(website)
+	return c.Status(200).JSON(map[string]any{"website": website})
 }
 
 func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
@@ -122,7 +122,6 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 
 	validations := map[string]string{}
 	h.validateStringMaxLength(validations, "name", "website name", 64, body.Name)
-	h.validateStringMaxLength(validations, "templateName", "template name", 255, body.Name)
 	h.validateStringMaxLength(validations, "description", "description", 170, body.Description)
 	h.validateJSONString(validations, "content", body.Content)
 	if len(validations) > 0 {
@@ -132,9 +131,9 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 		validations["name"] = "website name must not contain any spaces"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	if strings.ContainsAny(body.Name, "/&?=:%") {
+	if strings.ContainsAny(body.Name, "/&?=:%\\") {
 		validations["name"] =
-			"website name must not contain characters such as '/', '&', '?', '=', ':', '%'"
+			"website name must not contain characters such as '/', '&', '?', '=', ':', '%', '\\'"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 	if h.websiteRepository.GetByName(body.Name) != nil {
