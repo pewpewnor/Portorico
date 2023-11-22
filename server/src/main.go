@@ -66,11 +66,11 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 }
 
 func startRoutines(app *fiber.App, db *sqlx.DB) {
-	ctx, cancel := context.WithCancel(context.Background())
+	_, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
-	wg.Add(1)
-	go cleanAllSoftDelete(ctx, wg, db)
+	// wg.Add(1)
+	// go cleanAllSoftDelete(ctx, wg, db)
 
 	osChan := make(chan os.Signal, 1)
 	signal.Notify(osChan, os.Interrupt)
@@ -151,7 +151,8 @@ func main() {
 	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
 	app.Get("/authed/website", h.GetWebsiteForEditing)
 	app.Post("/authed/website", h.CreateWebsite)
-	app.Put("/authed/website", h.UpdateWebsite)
+	app.Put("/authed/website", h.UpdateWebsiteInformation)
+	app.Patch("/authed/website", h.UpdateWebsiteContent)
 
 	startRoutines(app, db)
 

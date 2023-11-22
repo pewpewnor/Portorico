@@ -109,11 +109,47 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	return c.Status(200).JSON(map[string]any{"website": website})
 }
 
-func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
+func (h *Handler) UpdateWebsiteContent(c *fiber.Ctx) error {
+	var body struct {
+		Content   string `json:"content"`
+		WebsiteId string `json:"websiteId"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(400)
+	}
+
+	validations := map[string]string{}
+	h.validateJSONString(validations, "content", body.Content)
+	if len(validations) > 0 {
+		return c.Status(400).JSON(map[string]any{"validations": validations})
+	}
+	websiteId, err := uuid.Parse(body.WebsiteId)
+	if err != nil {
+		validations["websiteId"] = "websiteId is invalid"
+		return c.Status(400).JSON(map[string]any{"validations": validations})
+	}
+	website := h.websiteRepository.GetById(websiteId)
+	if website == nil {
+		return c.SendStatus(400)
+	}
+
+	user, _ := c.Locals("user").(*model.User)
+	if website.UserId != user.Id {
+		return c.SendStatus(403)
+	}
+
+	err = h.websiteRepository.Update(website.Name, website.Description, json.RawMessage(body.Content), websiteId)
+	if err != nil {
+		return c.SendStatus(500)
+	}
+
+	return c.SendStatus(200)
+}
+
+func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 	var body struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
-		Content     string `json:"content"`
 		WebsiteId   string `json:"websiteId"`
 	}
 	if err := c.BodyParser(&body); err != nil {
@@ -123,7 +159,6 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 	validations := map[string]string{}
 	h.validateStringMaxLength(validations, "name", "website name", 64, body.Name)
 	h.validateStringMaxLength(validations, "description", "description", 170, body.Description)
-	h.validateJSONString(validations, "content", body.Content)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
@@ -155,7 +190,7 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepository.Update(body.Name, body.Description, json.RawMessage(body.Content), websiteId)
+	err = h.websiteRepository.Update(body.Name, body.Description, website.Content, websiteId)
 	if err != nil {
 		return c.SendStatus(500)
 	}

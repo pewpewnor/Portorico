@@ -9,6 +9,7 @@ interface LoggedInLayoutProps {
 }
 
 export default function LoggedInLayout(props: LoggedInLayoutProps) {
+	console.log("dashboard rendered");
 	const [isLoggedIn, _] = useContext(LoggedInContext);
 
 	return isLoggedIn ? (
