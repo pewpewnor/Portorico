@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/layouts/Loading";
 import client from "@/lib/axios";
 import { Website } from "@/types/model";
 import {
@@ -11,16 +12,18 @@ import {
 	Divider,
 	Input,
 	Link,
+	input,
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 
 export default function DashboardPage() {
 	const router = useRouter();
 
 	const [isLoding, setIsLoading] = useState(false);
+	const [inputSearch, setInputSearch] = useState("");
 	const [websites, setWebsites] = useState<Website[]>([]);
 
 	useEffect(() => {
@@ -46,6 +49,7 @@ export default function DashboardPage() {
 
 	return (
 		<div className="mt-8 flex flex-col gap-6 px-48">
+			{isLoding && <Loading />}
 			<div className="flex items-center justify-center gap-4">
 				<p className="whitespace-nowrap text-lg font-medium">
 					My Websites
@@ -59,6 +63,10 @@ export default function DashboardPage() {
 					size="md"
 					startContent={<CiSearch className="w-8" />}
 					type="search"
+					value={inputSearch}
+					onChange={(event: ChangeEvent<HTMLInputElement>) => {
+						setInputSearch(event.target.value);
+					}}
 				/>
 				<Link href="/create">
 					<Button className="w-32 bg-sky-blue">Add New</Button>
@@ -66,43 +74,49 @@ export default function DashboardPage() {
 			</div>
 			{websites.length ? (
 				<div className="grid grid-cols-3 gap-4">
-					{websites.map((website, index) => (
-						<Card key={index} className="max-w-[400px]">
-							<CardHeader className="flex gap-3">
-								<Image
-									alt="nextui logo"
-									height={40}
-									src="/favicon.ico"
-									width={40}
-								/>
-								<div className="flex flex-col">
-									<p className="text-md">{website.name}</p>
-									<p className="text-small text-default-500">
-										{website.visitorsThisMonth} visitors
-										this month
-									</p>
-								</div>
-							</CardHeader>
-							<Divider />
-							<CardBody>
-								<p>{website.description}</p>
-							</CardBody>
-							<Divider />
-							<CardFooter className="flex justify-between">
-								<Link
-									href={"/p/" + website.name}
-									className="text-indigo-600"
-									showAnchorIcon
-									underline="always"
-								>
-									View this website
-								</Link>
-								<p className="text-small text-default-500">
-									{website.templateName}
-								</p>
-							</CardFooter>
-						</Card>
-					))}
+					{websites.map(
+						(website, index) =>
+							(website.name.includes(inputSearch) ||
+								website.description.includes(inputSearch)) && (
+								<Card key={index} className="max-w-[400px]">
+									<CardHeader className="flex gap-3">
+										<Image
+											alt="nextui logo"
+											height={40}
+											src="/favicon.ico"
+											width={40}
+										/>
+										<div className="flex flex-col">
+											<p className="text-md">
+												{website.name}
+											</p>
+											<p className="text-small text-default-500">
+												{website.visitorsThisMonth}{" "}
+												visitors this month
+											</p>
+										</div>
+									</CardHeader>
+									<Divider />
+									<CardBody>
+										<p>{website.description}</p>
+									</CardBody>
+									<Divider />
+									<CardFooter className="flex justify-between">
+										<Link
+											href={"/p/" + website.name}
+											className="text-indigo-600"
+											showAnchorIcon
+											underline="always"
+										>
+											View this website
+										</Link>
+										<p className="text-small text-default-500">
+											{website.templateName}
+										</p>
+									</CardFooter>
+								</Card>
+							)
+					)}
 				</div>
 			) : (
 				<div className="flex items-center justify-center gap-2">
