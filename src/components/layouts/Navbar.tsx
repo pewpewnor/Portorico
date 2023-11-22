@@ -92,18 +92,6 @@ export default function Navbar() {
 			<NavbarContent justify="end">
 				{isLoggedIn ? (
 					<>
-						<NavbarItem>
-							<Link href="/create">
-								<Button
-									color="secondary"
-									variant="flat"
-									isDisabled={isLoading}
-									className="font-bold"
-								>
-									Build New Website
-								</Button>
-							</Link>
-						</NavbarItem>
 						<button
 							className="flex cursor-pointer"
 							disabled={isLoading}
