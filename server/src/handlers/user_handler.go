@@ -25,8 +25,8 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	}
 
 	validations := map[string]string{}
-	h.validateStringNotEmpty(validations, "username", "username", body.Username)
-	h.validateStringNotEmpty(validations, "password", "password", body.Password)
+	h.validateStringMaxLength(validations, "username", "username", 64, body.Username)
+	h.validateStringMinMaxLength(validations, "password", "password", 6, 64, body.Password)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
@@ -58,8 +58,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	}
 
 	validations := map[string]string{}
-	h.validateStringNotEmpty(validations, "username", "username", body.Username)
-	h.validateStringNotEmpty(validations, "password", "password", body.Password)
+	h.validateStringMaxLength(validations, "username", "username", 64, body.Username)
+	h.validateStringMinMaxLength(validations, "password", "password", 6, 64, body.Password)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
