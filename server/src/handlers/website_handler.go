@@ -25,6 +25,7 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	var body struct {
 		Name         string `json:"name"`
 		TemplateName string `json:"templateName"`
+		Description  string `json:"description"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.SendStatus(400)
@@ -42,7 +43,7 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 
 	user, _ := c.Locals("user").(model.User)
 
-	website, err := h.websiteRepository.Create(body.Name, body.TemplateName, user.Id)
+	website, err := h.websiteRepository.Create(body.Name, body.TemplateName, body.Description, user.Id)
 	if err != nil {
 		return c.SendStatus(500)
 	}
