@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"encoding/json"
+
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -13,6 +15,24 @@ type LiveWebsiteRepository struct {
 
 func NewLiveWebsiteRepository(db *sqlx.DB) *LiveWebsiteRepository {
 	return &LiveWebsiteRepository{db: db}
+}
+
+func (r *LiveWebsiteRepository) GetById(id uuid.UUID) *model.Website {
+	website := &model.Website{}
+	if err := r.db.Get(website, "SELECT * FROM websites WHERE id = $1", id); err != nil {
+		return nil
+	}
+
+	return website
+}
+
+func (r *LiveWebsiteRepository) GetByName(name string) *model.Website {
+	website := &model.Website{}
+	if err := r.db.Get(website, "SELECT * FROM websites WHERE name = $1", name); err != nil {
+		return nil
+	}
+
+	return website
 }
 
 func (r *LiveWebsiteRepository) FindByUserId(userId uuid.UUID) ([]model.Website, error) {
@@ -36,4 +56,24 @@ func (r *LiveWebsiteRepository) Create(name string, templateName string, descrip
 	}
 
 	return website, nil
+}
+
+func (r *LiveWebsiteRepository) Update(name string, description string, content json.RawMessage, websiteId uuid.UUID) error {
+	_, err := r.db.Exec("UPDATE websites SET name = $1, description = $2, content = $3 WHERE id = $4", name, description, content, websiteId)
+	if err != nil {
+		log.Errorf("server cannot update website content: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *LiveWebsiteRepository) Delete(websiteId uuid.UUID) error {
+	_, err := r.db.Exec("DELETE FROM websites WHERE id = $1", websiteId)
+	if err != nil {
+		log.Errorf("server cannot delete website: %v", err)
+		return err
+	}
+
+	return nil
 }
