@@ -47,6 +47,7 @@ type Website struct {
 	Base
 	Name              string          `db:"name" json:"name"`
 	TemplateName      string          `db:"template_name" json:"templateName"`
+	Description       string          `db:"description" json:"description"`
 	VisitorsThisMonth int32           `db:"visitors_this_month" json:"visitorsThisMonth"`
 	Content           json.RawMessage `db:"content" json:"content"`
 	UserId            uuid.UUID       `db:"user_id" json:"userId"`
