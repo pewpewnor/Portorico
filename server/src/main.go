@@ -102,8 +102,8 @@ func seedDatabase(db *sqlx.DB) {
 	user, _, _ := userRepository.Create("a", "a")
 
 	websiteRepository := repository.NewLiveWebsiteRepository(db)
-	websiteRepository.Create("my-website", "template name", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
-	websiteRepository.Create("my-website_2", "template name 2", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
+	websiteRepository.Create("meme", "Test Template", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
+	websiteRepository.Create("original_human", "Test Template", "This is simply a a fake description message for testing purposes!!!", user.Id)
 }
 
 func main() {
@@ -148,9 +148,10 @@ func main() {
 
 	app.Use(h.AuthMiddleware)
 
-	app.Get("/websites", h.FindWebsitesOwnedByUser)
-	app.Post("/website", h.CreateWebsite)
-	app.Put("/website", h.UpdateWebsite)
+	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
+	app.Get("/authed/website", h.GetWebsiteForEditing)
+	app.Post("/authed/website", h.CreateWebsite)
+	app.Put("/authed/website", h.UpdateWebsite)
 
 	startRoutines(app, db)
 
