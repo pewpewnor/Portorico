@@ -33,8 +33,7 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 
 	user := h.userRepository.GetByUsername(body.Username)
 	if user != nil {
-		validations["username"] =
-			"username is already taken, please try a different one"
+		validations["username"] = "username is already taken, please try a different one"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
@@ -59,7 +58,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 	validations := map[string]string{}
 	h.validateStringMaxLength(validations, "username", "username", 64, body.Username)
-	h.validateStringMinMaxLength(validations, "password", "password", 6, 64, body.Password)
+	h.validateStringMaxLength(validations, "password", "password", 64, body.Password)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
@@ -69,8 +68,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 	if !valid {
-		validations["general"] =
-			"username or password is incorrect, please try again"
+		validations["general"] = "username or password is incorrect, please try again"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 

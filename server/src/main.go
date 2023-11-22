@@ -150,6 +150,7 @@ func main() {
 
 	app.Get("/websites", h.FindWebsitesOwnedByUser)
 	app.Post("/website", h.CreateWebsite)
+	app.Put("/website", h.UpdateWebsite)
 
 	startRoutines(app, db)
 
