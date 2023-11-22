@@ -1,6 +1,6 @@
 "use client";
 
-import LoggedInContext from "@/contexts/LoggedInContext";
+import LoadingContext from "@/contexts/LoadingContext";
 import {
 	Button,
 	NavbarBrand,
@@ -24,7 +24,7 @@ const menus = [
 		hiddenIfLoggedIn: true,
 	},
 	{
-		name: "My Websites",
+		name: "Web Editor",
 		href: "/dashboard",
 	},
 	{
@@ -38,11 +38,18 @@ export default function Navbar() {
 	const pathName = usePathname();
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isLoggedIn, refreshLoggedIn] = useContext(LoggedInContext);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isLoading, setIsLoading] = useContext(LoadingContext);
 
-	function handleLogout() {
+	useEffect(() => {
+		setIsLoggedIn(!!Cookies.get("session"));
+	}, [isLoading]);
+
+	async function handleLogout() {
+		setIsLoading(true);
 		Cookies.remove("session");
-		refreshLoggedIn();
+		setIsLoggedIn(false);
+		setIsLoading(false);
 		router.push("/");
 	}
 
@@ -90,18 +97,20 @@ export default function Navbar() {
 								<Button
 									color="secondary"
 									variant="flat"
+									isDisabled={isLoading}
 									className="font-bold"
 								>
 									Build New Website
 								</Button>
 							</Link>
 						</NavbarItem>
-						<NavbarItem
+						<button
 							className="flex cursor-pointer"
+							disabled={isLoading}
 							onClick={handleLogout}
 						>
 							<p>Logout</p>
-						</NavbarItem>
+						</button>
 					</>
 				) : (
 					<>
@@ -110,7 +119,11 @@ export default function Navbar() {
 						</NavbarItem>
 						<NavbarItem>
 							<Link href="/register">
-								<Button color="primary" variant="flat">
+								<Button
+									isDisabled={isLoading}
+									color="primary"
+									variant="flat"
+								>
 									Sign Up
 								</Button>
 							</Link>

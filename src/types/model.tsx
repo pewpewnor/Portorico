@@ -12,6 +12,7 @@ interface User extends Base {
 interface Website extends Base {
 	name: string;
 	templateName: string;
+	description: string;
 	visitorsThisMonth: number;
 	content: { [key: string]: string };
 }
