@@ -1,6 +1,7 @@
 "use client";
 
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoggedInContext from "@/contexts/LoggedInContext";
 import client from "@/lib/axios";
 import { User } from "@/types/model";
 import { Validations } from "@/types/responses";
@@ -8,7 +9,7 @@ import { Button, Input } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 
 type RegisterResponse = {
 	user?: User;
@@ -17,6 +18,7 @@ type RegisterResponse = {
 
 export default function RegisterPage() {
 	const router = useRouter();
+	const [_, refreshIsLoggedIn] = useContext(LoggedInContext);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
@@ -40,6 +42,8 @@ export default function RegisterPage() {
 			if (res.status == 400 && data.validations) {
 				setValidations(data.validations);
 			} else if (res.status == 200 && data.user) {
+				setIsLoading(false);
+				refreshIsLoggedIn();
 				router.push("/dashboard");
 			}
 		} catch (error) {
