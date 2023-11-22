@@ -1,6 +1,6 @@
 "use client";
 
-import LoadingContext from "@/contexts/LoadingContext";
+import LoggedInContext from "@/contexts/LoggedInContext";
 import {
 	Button,
 	NavbarBrand,
@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 const menus = [
 	{
@@ -36,20 +36,13 @@ const menus = [
 export default function Navbar() {
 	const router = useRouter();
 	const pathName = usePathname();
+	const [isLoggedIn, refreshIsLoggedIn] = useContext(LoggedInContext);
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [isLoading, setIsLoading] = useContext(LoadingContext);
-
-	useEffect(() => {
-		setIsLoggedIn(!!Cookies.get("session"));
-	}, [isLoading]);
 
 	async function handleLogout() {
-		setIsLoading(true);
 		Cookies.remove("session");
-		setIsLoggedIn(false);
-		setIsLoading(false);
+		refreshIsLoggedIn();
 		router.push("/");
 	}
 
@@ -94,7 +87,6 @@ export default function Navbar() {
 					<>
 						<button
 							className="flex cursor-pointer"
-							disabled={isLoading}
 							onClick={handleLogout}
 						>
 							<p>Logout</p>
@@ -107,11 +99,7 @@ export default function Navbar() {
 						</NavbarItem>
 						<NavbarItem>
 							<Link href="/register">
-								<Button
-									isDisabled={isLoading}
-									color="primary"
-									variant="flat"
-								>
+								<Button color="primary" variant="flat">
 									Sign Up
 								</Button>
 							</Link>

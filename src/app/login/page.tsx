@@ -1,7 +1,7 @@
 "use client";
 
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import LoadingContext from "@/contexts/LoadingContext";
+import LoggedInContext from "@/contexts/LoggedInContext";
 import client from "@/lib/axios";
 import { User } from "@/types/model";
 import { Validations } from "@/types/responses";
@@ -20,8 +20,9 @@ type LoginResponse = {
 
 export default function LoginPage() {
 	const router = useRouter();
+	const [_, refreshIsLoggedIn] = useContext(LoggedInContext);
 
-	const [isLoading, setIsLoading] = useContext(LoadingContext);
+	const [isLoading, setIsLoading] = useState(false);
 	const [validations, setValidations] = useState<Validations>({});
 	const [inputData, setInputData] = useState({
 		username: Cookies.get("username") ?? "",
@@ -55,6 +56,7 @@ export default function LoginPage() {
 					Cookies.set("password", inputData.password, cookieConfig);
 				}
 				setIsLoading(false);
+				refreshIsLoggedIn();
 				router.push("/dashboard");
 			}
 		} catch (error) {

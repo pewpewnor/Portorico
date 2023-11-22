@@ -1,23 +1,30 @@
 "use client";
 
-import Loading from "@/components/layouts/Loading";
 import { NextUIProvider } from "@nextui-org/react";
-import { ReactNode, useState } from "react";
-import LoadingContext from "./LoadingContext";
+import Cookies from "js-cookie";
+import { ReactNode, useEffect, useState } from "react";
+import LoggedInContext from "./LoggedInContext";
 
 interface ContextProviderProps {
 	children: ReactNode;
 }
 
 export default function ContextProviders(props: ContextProviderProps) {
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	function refreshIsLoggedIn() {
+		setIsLoggedIn(!!Cookies.get("session"));
+	}
+
+	useEffect(() => {
+		refreshIsLoggedIn();
+	}, []);
 
 	return (
 		<NextUIProvider>
-			<LoadingContext.Provider value={[isLoading, setIsLoading]}>
-				{isLoading && <Loading />}
+			<LoggedInContext.Provider value={[isLoggedIn, refreshIsLoggedIn]}>
 				{props.children}
-			</LoadingContext.Provider>
+			</LoggedInContext.Provider>
 		</NextUIProvider>
 	);
 }
