@@ -16,12 +16,6 @@ func NewHandler(db *sqlx.DB) *Handler {
 	return &Handler{repository.NewLiveUserRepository(db), repository.NewLiveWebsiteRepository(db)}
 }
 
-func (h *Handler) validateStringNotEmpty(validations map[string]string, fieldName string, showcaseName string, fieldValue string) {
-	if fieldValue == "" {
-		validations[fieldName] = showcaseName + " must not be empty"
-	}
-}
-
 func (h *Handler) validateStringMaxLength(validations map[string]string, fieldName string, showcaseName string, max uint16, fieldValue string) {
 	if fieldValue == "" {
 		validations[fieldName] = showcaseName + " must not be empty"
