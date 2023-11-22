@@ -79,6 +79,7 @@ func (h *Handler) UpdateWebsite(c *fiber.Ctx) error {
 	h.validateStringMaxLength(validations, "name", "website name", 64, body.Name)
 	h.validateStringMaxLength(validations, "templateName", "template name", 255, body.Name)
 	h.validateStringMaxLength(validations, "description", "description", 170, body.Description)
+	h.validateJSONString(validations, "content", body.Content)
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
