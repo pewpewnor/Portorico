@@ -21,10 +21,12 @@ export default function EditPage() {
 					"/authed/website/" + encodeURIComponent(name as string)
 				);
 				const data = res.data as Website;
+				console.log(data.content);
 
 				if (res.status === 400) {
 					console.log("error 400");
 				} else if (res.status === 200) {
+					// setWebsite({ ...data, content: JSON.parse(data.content) });
 					setWebsite(data);
 				}
 			} catch (error) {
@@ -32,6 +34,38 @@ export default function EditPage() {
 			}
 		})();
 	}, [name]);
+
+	async function changeField(fieldName: string, value: string) {
+		console.log(fieldName, value);
+		if (website !== null) {
+			setWebsite((prev) => {
+				if (prev === null) {
+					return prev;
+				}
+				return {
+					...prev,
+					content: { ...prev.content, [fieldName]: value },
+				};
+			});
+			try {
+				const jsonContent = JSON.stringify({
+					...website.content,
+					[fieldName]: value,
+				});
+				console.log(jsonContent);
+				const res = await client.patch("/authed/website", {
+					content: jsonContent,
+					websiteId: website.id,
+				});
+
+				if (res.status === 400) {
+					console.error("error 400");
+				}
+			} catch (error) {
+				setIsForbidden(true);
+			}
+		}
+	}
 
 	if (isForbidden) {
 		return (
@@ -42,8 +76,11 @@ export default function EditPage() {
 			/>
 		);
 	}
+	if (website === null) return <Loading />;
 
-	if (!website) return <Loading />;
-
-	return getTemplateForEditing(website.templateName, website.content);
+	return getTemplateForEditing(
+		website.templateName,
+		website.content,
+		changeField
+	);
 }

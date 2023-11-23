@@ -1,38 +1,63 @@
+import {
+	Button,
+	Input,
+	ModalBody,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	Modal as NextModal,
+	useDisclosure,
+} from "@nextui-org/react";
 import Image from "next/image";
+import { ChangeEvent, useState } from "react";
 import "./style.css";
 
 interface TestTemplateProps {
 	isEditing: boolean;
+	changeField: (fieldName: string, value: string) => void;
 	text1?: string;
 	text2?: string;
 }
 
 export default function BasicLanding(props: TestTemplateProps) {
-	const text1 = props.text1 ?? "MY PORTFOLIO";
-	const text2 = props.text2 ?? "abour me lorem ipsum";
+	const text1 = props.text1 ?? "My Name";
+	const text2 = props.text2 ?? "about me lorem ipsum";
+
+	const { isOpen, onOpen, onOpenChange } = useDisclosure();
+	const [fieldName, setFieldName] = useState("");
+	const [fieldValue, setFieldValue] = useState("");
+
+	function handleChange(fieldName: string, fieldValue: string) {
+		return () => {
+			setFieldName(fieldName);
+			setFieldValue(fieldValue);
+			onOpen();
+		};
+	}
 
 	return (
-		<div>
+		<div id="home">
 			<div className="hero">
 				<nav>
 					<h2 className="logo">
-						Porto<span>rico</span>
+						<span>
+							<button onClick={handleChange("text1", text1)}>
+								{text1}
+							</button>
+						</span>
 					</h2>
 					<ul>
 						<li>
-							<a href="#">Home</a>
+							<a href="#home">Home</a>
 						</li>
 						<li>
-							<a href="#">About Us</a>
+							<a href="#aboutMe">About Me</a>
 						</li>
 						<li>
-							<a href="#">Services</a>
+							<a href="#services">Services</a>
 						</li>
 						<li>
-							<a href="#">Skills</a>
-						</li>
-						<li>
-							<a href="#">Contact Us</a>
+							<a href="#contactUs">Contact Us</a>
 						</li>
 					</ul>
 					<a href="#" className="btn">
@@ -62,7 +87,7 @@ export default function BasicLanding(props: TestTemplateProps) {
 				</div>
 			</div>
 
-			<section className="about">
+			<section className="about" id="aboutMe">
 				<div className="main">
 					<Image
 						src="/template/basic/profile.jpg"
@@ -79,9 +104,9 @@ export default function BasicLanding(props: TestTemplateProps) {
 				</div>
 			</section>
 
-			<div className="service">
+			<div className="service" id="services">
 				<div className="title">
-					<h2>Our Services</h2>
+					<h2>My Services</h2>
 				</div>
 
 				<div className="box">
@@ -138,7 +163,7 @@ export default function BasicLanding(props: TestTemplateProps) {
 				</div>
 			</div>
 
-			<div className="contact-me">
+			<div className="contact-me" id="contactUs">
 				<p>Let me make you a website</p>
 				<a className="button-two" href="#">
 					Hire Me
@@ -164,6 +189,56 @@ export default function BasicLanding(props: TestTemplateProps) {
 				</div>
 				<p className="end">Portorico</p>
 			</footer>
+
+			<NextModal
+				isOpen={isOpen}
+				onOpenChange={onOpenChange}
+				placement="top-center"
+			>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								Change {fieldName}
+							</ModalHeader>
+							<ModalBody>
+								<Input
+									autoFocus
+									label={fieldName}
+									variant="bordered"
+									name="name"
+									value={fieldValue}
+									onChange={(
+										event: ChangeEvent<HTMLInputElement>
+									) => {
+										setFieldValue(event.target.value);
+									}}
+								/>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									color="danger"
+									variant="flat"
+									onPress={onClose}
+								>
+									Cancel
+								</Button>
+								<Button
+									color="primary"
+									onPress={() => {
+										props.changeField(
+											fieldName,
+											fieldValue
+										);
+									}}
+								>
+									Create
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</NextModal>
 		</div>
 	);
 }

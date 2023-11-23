@@ -9,9 +9,19 @@ export function getTemplate(templateName: string, content: any) {
 	return undefined;
 }
 
-export function getTemplateForEditing(templateName: string, content: any) {
+export function getTemplateForEditing(
+	templateName: string,
+	content: any,
+	changeField: (fieldName: string, value: string) => void
+) {
 	if (templateName === "Test Template") {
-		return <BasicLanding {...content} isEditing={true} />;
+		return (
+			<BasicLanding
+				{...content}
+				isEditing={true}
+				changeField={changeField}
+			/>
+		);
 	}
 	return undefined;
 }
