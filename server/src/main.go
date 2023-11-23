@@ -144,14 +144,15 @@ func main() {
 	app.Get("/statusz", h.ServerStatus)
 	app.Post("/register", h.Register)
 	app.Post("/login", h.Login)
+	app.Get("/website/:name", h.GetWebsite)
 
 	app.Use(h.AuthMiddleware)
 
-	app.Get("/authed/website", h.GetWebsiteForEditing)
+	app.Get("/authed/website/:name", h.GetWebsiteForEditing)
 	app.Post("/authed/website", h.CreateWebsite)
 	app.Put("/authed/website", h.UpdateWebsiteInformation)
 	app.Patch("/authed/website", h.UpdateWebsiteContent)
-	app.Delete("/authed/website", h.DeleteWebsite)
+	app.Delete("/authed/website/:websiteId", h.DeleteWebsite)
 	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
 
 	startRoutines(app, db)
