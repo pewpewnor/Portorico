@@ -3,22 +3,22 @@
 import Error from "@/components/layouts/Error";
 import Loading from "@/components/layouts/Loading";
 import client from "@/lib/axios";
-import { getTemplateForEditing } from "@/templates/templates";
+import { getTemplate } from "@/templates/templates";
 import { Website } from "@/types/model";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function EditPage() {
+export default function WebsitePage() {
 	const { name } = useParams();
 
-	const [isForbidden, setIsForbidden] = useState(false);
+	const [isNotFound, setIsNotFound] = useState(false);
 	const [website, setWebsite] = useState<Website | null>(null);
 
 	useEffect(() => {
 		(async () => {
 			try {
 				const res = await client.get(
-					"/authed/website/" + encodeURIComponent(name as string)
+					"/website/" + encodeURIComponent(name as string)
 				);
 				const data = res.data as Website;
 
@@ -28,22 +28,21 @@ export default function EditPage() {
 					setWebsite(data);
 				}
 			} catch (error) {
-				setIsForbidden(true);
+				setIsNotFound(true);
 			}
 		})();
 	}, [name]);
 
-	if (isForbidden) {
+	if (isNotFound) {
 		return (
 			<Error
-				topMessage="You need to be logged in to visit this page"
-				bottomMessage="Sorry about that, please visit our login page to sign in."
+				topMessage="Sorry about that, please visit our home page to get where you need to go."
+				bottomMessage="Looks like you've found an empty space!"
 				buttonText="Take me there!"
 			/>
 		);
 	}
-
 	if (!website) return <Loading />;
 
-	return getTemplateForEditing(website.templateName, website.content);
+	return getTemplate(website.templateName, website.content);
 }
