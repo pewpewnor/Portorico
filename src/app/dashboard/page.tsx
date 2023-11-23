@@ -1,5 +1,6 @@
 "use client";
 
+import Error from "@/components/layouts/Error";
 import Loading from "@/components/layouts/Loading";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import client from "@/lib/axios";
@@ -14,6 +15,10 @@ import {
 	CardFooter,
 	CardHeader,
 	Divider,
+	Dropdown,
+	DropdownItem,
+	DropdownMenu,
+	DropdownTrigger,
 	Input,
 	Link,
 	Modal,
@@ -29,7 +34,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
-import { MdDriveFileRenameOutline } from "react-icons/md";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 type CreateWebsiteResponse = {
 	validations?: Validations;
@@ -47,9 +52,6 @@ const defaultInputData = {
 };
 
 export default function DashboardPage() {
-	const router = useRouter();
-
-	const [isLoding, setIsLoading] = useState(true);
 	const {
 		isOpen: isOpenCreate,
 		onOpen: onOpenCreate,
@@ -60,11 +62,14 @@ export default function DashboardPage() {
 		onOpen: onOpenEdit,
 		onOpenChange: onOpenChangeEdit,
 	} = useDisclosure();
-	const [inputSearch, setInputSearch] = useState("");
+
+	const [isLoding, setIsLoading] = useState(true);
+	const [isForbidden, setIsForbidden] = useState(false);
 	const [websites, setWebsites] = useState<Website[]>([]);
+	const [selectedWebsiteId, setselectedWebsiteId] = useState("");
+	const [inputSearch, setInputSearch] = useState("");
 	const [inputData, setInputData] = useState(defaultInputData);
 	const [validations, setValidations] = useState<Validations>({});
-	const [oldWebsiteId, setOldWebsiteId] = useState("");
 
 	useEffect(() => {
 		(async () => {
@@ -79,13 +84,11 @@ export default function DashboardPage() {
 					setWebsites(data);
 				}
 			} catch (error) {
-				setIsLoading(false);
-				router.replace("/login");
-				return;
+				setIsForbidden(true);
 			}
 			setIsLoading(false);
 		})();
-	}, [router]);
+	}, []);
 
 	function handleChange(event: ChangeEvent<HTMLInputElement>) {
 		setInputData((prev) => ({
@@ -109,9 +112,7 @@ export default function DashboardPage() {
 				onClose();
 			}
 		} catch (error) {
-			setIsLoading(false);
-			router.replace("/login");
-			return;
+			setIsForbidden(true);
 		}
 		setIsLoading(false);
 	}
@@ -121,7 +122,7 @@ export default function DashboardPage() {
 		try {
 			const res = await client.put("/authed/website", {
 				...inputData,
-				websiteId: oldWebsiteId,
+				websiteId: selectedWebsiteId,
 			});
 			const data = res.data as UpdateWebsiteResponse;
 
@@ -130,7 +131,7 @@ export default function DashboardPage() {
 			} else if (res.status === 200) {
 				setWebsites((prev) =>
 					prev.map((website) =>
-						website.id === oldWebsiteId
+						website.id === selectedWebsiteId
 							? {
 									...website,
 									name: inputData.name,
@@ -144,15 +145,43 @@ export default function DashboardPage() {
 				onClose();
 			}
 		} catch (error) {
-			setIsLoading(false);
-			router.replace("/login");
-			return;
+			setIsForbidden(true);
 		}
 		setIsLoading(false);
 	}
 
+	async function handleDelete(websiteId: string) {
+		setIsLoading(true);
+		try {
+			const res = await client.delete(
+				"/authed/website/" + encodeURIComponent(websiteId)
+			);
+
+			if (res.status === 400) {
+				console.log("error 400");
+			} else if (res.status === 200) {
+				setWebsites((prev) =>
+					prev.filter((website) => website.id !== websiteId)
+				);
+			}
+		} catch (error) {
+			setIsForbidden(true);
+		}
+		setIsLoading(false);
+	}
+
+	if (isForbidden) {
+		return (
+			<Error
+				topMessage="You need to be logged in to visit this page"
+				bottomMessage="Sorry about that, please visit our login page to sign in."
+				buttonText="Take me there!"
+			/>
+		);
+	}
+
 	return (
-		<div className="mt-8 flex flex-col gap-6 px-6 sm:px-14 xl:px-32">
+		<div className="mt-8 flex flex-col gap-6 px-6 sm:px-14 xl:px-28">
 			{isLoding && <Loading />}
 			<div className="flex items-center justify-center gap-4">
 				<p className="hidden whitespace-nowrap text-lg font-medium sm:block">
@@ -211,18 +240,52 @@ export default function DashboardPage() {
 											</div>
 										</div>
 										<div className="flex items-center justify-center gap-3">
-											<button
-												onClick={() => {
-													setOldWebsiteId(website.id);
-													setInputData(website);
-													onOpenEdit();
-												}}
+											<Link
+												href={"/edit/" + website.name}
 											>
-												<MdDriveFileRenameOutline className="h-6 w-6" />
-											</button>
-											<Button className="bg-indigo-600 font-medium text-white">
-												Edit
-											</Button>
+												<Button className="bg-indigo-600 font-medium text-white">
+													Edit
+												</Button>
+											</Link>
+											<Dropdown>
+												<DropdownTrigger>
+													<button>
+														<GiHamburgerMenu className="h-6 w-6" />
+													</button>
+												</DropdownTrigger>
+												<DropdownMenu aria-label="Static Actions">
+													<DropdownItem key="new">
+														<button
+															onClick={() => {
+																setselectedWebsiteId(
+																	website.id
+																);
+																setInputData(
+																	website
+																);
+																onOpenEdit();
+															}}
+														>
+															Change Information
+														</button>
+													</DropdownItem>
+													<DropdownItem
+														key="delete"
+														className="text-danger"
+														color="danger"
+													>
+														<button
+															onClick={() => {
+																handleDelete(
+																	website.id
+																);
+															}}
+														>
+															Delete
+														</button>
+													</DropdownItem>
+												</DropdownMenu>
+											</Dropdown>
 										</div>
 									</CardHeader>
 									<Divider />

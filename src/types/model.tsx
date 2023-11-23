@@ -14,7 +14,7 @@ interface Website extends Base {
 	templateName: string;
 	description: string;
 	visitorsThisMonth: number;
-	content: { [key: string]: string };
+	content: any;
 }
 
 export type { User, Website };

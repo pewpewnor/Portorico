@@ -48,6 +48,8 @@ export default function Navbar() {
 		router.push("/");
 	}
 
+	if (pathName.slice(0, 5) === "/edit") return <div></div>;
+
 	return (
 		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
 			<NavbarContent>

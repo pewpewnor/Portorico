@@ -10,18 +10,12 @@ import (
 )
 
 func (h *Handler) GetWebsite(c *fiber.Ctx) error {
-	var body struct {
-		Name string `json:"name"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	name := c.Params("name")
+	if name == "" {
 		return c.SendStatus(400)
 	}
 
-	if body.Name == "" {
-		return c.SendStatus(400)
-	}
-
-	website := h.websiteRepository.GetByName(body.Name)
+	website := h.websiteRepository.GetByName(name)
 	if website == nil {
 		return c.SendStatus(404)
 	}
@@ -30,18 +24,12 @@ func (h *Handler) GetWebsite(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetWebsiteForEditing(c *fiber.Ctx) error {
-	var body struct {
-		Name string `json:"name"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	name := c.Params("name")
+	if name == "" {
 		return c.SendStatus(400)
 	}
 
-	if body.Name == "" {
-		return c.SendStatus(400)
-	}
-
-	website := h.websiteRepository.GetByName(body.Name)
+	website := h.websiteRepository.GetByName(name)
 	if website == nil {
 		return c.SendStatus(404)
 	}
@@ -171,13 +159,13 @@ func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 			"website name must not contain characters such as '/', '&', '?', '=', ':', '%', '\\'"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	if h.websiteRepository.GetByName(body.Name) != nil {
-		validations["name"] = "website name is already taken, please try a different one"
-		return c.Status(400).JSON(map[string]any{"validations": validations})
-	}
 	websiteId, err := uuid.Parse(body.WebsiteId)
 	if err != nil {
 		validations["websiteId"] = "websiteId is invalid"
+		return c.Status(400).JSON(map[string]any{"validations": validations})
+	}
+	if otherWebsite := h.websiteRepository.GetByName(body.Name); otherWebsite != nil && otherWebsite.Id != websiteId {
+		validations["name"] = "website name is already taken, please try a different one"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 	website := h.websiteRepository.GetById(websiteId)
@@ -199,14 +187,7 @@ func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 }
 
 func (h *Handler) DeleteWebsite(c *fiber.Ctx) error {
-	var body struct {
-		WebsiteId string `json:"websiteId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.SendStatus(400)
-	}
-
-	websiteId, err := uuid.Parse(body.WebsiteId)
+	websiteId, err := uuid.Parse(c.Params("websiteId"))
 	if err != nil {
 		return c.SendStatus(400)
 	}
