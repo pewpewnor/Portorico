@@ -197,3 +197,33 @@ func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 
 	return c.SendStatus(200)
 }
+
+func (h *Handler) DeleteWebsite(c *fiber.Ctx) error {
+	var body struct {
+		WebsiteId string `json:"websiteId"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.SendStatus(400)
+	}
+
+	websiteId, err := uuid.Parse(body.WebsiteId)
+	if err != nil {
+		return c.SendStatus(400)
+	}
+	website := h.websiteRepository.GetById(websiteId)
+	if website == nil {
+		return c.SendStatus(400)
+	}
+
+	user, _ := c.Locals("user").(*model.User)
+	if website.UserId != user.Id {
+		return c.SendStatus(403)
+	}
+
+	err = h.websiteRepository.Delete(websiteId)
+	if err != nil {
+		return c.SendStatus(500)
+	}
+
+	return c.SendStatus(200)
+}
