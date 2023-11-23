@@ -31,7 +31,6 @@ import {
 	useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { GiHamburgerMenu } from "react-icons/gi";
