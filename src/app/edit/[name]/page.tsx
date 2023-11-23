@@ -3,7 +3,7 @@
 import Error from "@/components/layouts/Error";
 import Loading from "@/components/layouts/Loading";
 import client from "@/lib/axios";
-import { getTemplate, getTemplateForEditing } from "@/templates/templates";
+import { getTemplateForEditing } from "@/templates/templates";
 import { Website } from "@/types/model";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -42,6 +42,7 @@ export default function EditPage() {
 			/>
 		);
 	}
+
 	if (!website) return <Loading />;
 
 	return getTemplateForEditing(website.templateName, website.content);

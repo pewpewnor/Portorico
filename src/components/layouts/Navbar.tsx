@@ -16,7 +16,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useContext, useState } from "react";
-import Loading from "./Loading";
 
 const menus = [
 	{
@@ -48,7 +47,8 @@ export default function Navbar() {
 		router.push("/");
 	}
 
-	if (pathName.slice(0, 5) === "/edit") return <div></div>;
+	if (pathName.slice(0, 5) === "/edit" || pathName.slice(0, 2) === "/p")
+		return <></>;
 
 	return (
 		<NextNavbar onMenuOpenChange={setIsMenuOpen} position="sticky">
