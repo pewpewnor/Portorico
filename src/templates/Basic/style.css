@@ -5,14 +5,15 @@
 	box-sizing: border-box;
 }
 
-.hero {
+.basic_hero {
 	height: 100vh;
 	width: 100vw;
 	background-image: url(/template/basic/background2.jpg);
 	background-size: cover;
 	background-position: center;
 }
-nav {
+
+.basic_nav {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -20,31 +21,31 @@ nav {
 	padding-left: 8%;
 	padding-right: 8%;
 }
-.logo {
+.basic_logo {
 	color: white;
 	font-size: 35px;
 	letter-spacing: 1px;
 	cursor: pointer;
 }
-span {
+.basic_span {
 	color: brown;
 }
-nav ul li {
+.basic_li {
 	list-style-type: none;
 	display: inline-block;
 	padding: 10px 25px;
 }
-nav ul li a {
+.basic_a {
 	color: white;
 	text-decoration: none;
 	font-weight: bold;
 	text-transform: capitalize;
 }
-nav ul li a:hover {
+.basic_a:hover {
 	color: brown;
-	transition: 0.4s;
+	transition: 0basic_4s;
 }
-.btn {
+.basic_btn {
 	background-color: brown;
 	color: white;
 	text-decoration: none;
@@ -52,38 +53,38 @@ nav ul li a:hover {
 	font-weight: bold;
 	padding: 10px 25px;
 	border-radius: 30px;
-	transition: transform 0.4s;
+	transition: transform 0basic_4s;
 }
-.btn:hover {
-	transform: scale(1.1);
+.basic_btn:hover {
+	transform: scale(1basic_1);
 }
-.content {
+.basic_content {
 	position: absolute;
 	top: 50%;
 	left: 8%;
 	transform: translateY(-50%);
 }
-h1 {
+.basic_h1 {
 	color: white;
 	margin: 20px 0px 20px;
 	font-size: 75px;
 }
-h3 {
+.basic_h3 {
 	color: white;
 	font-size: 25px;
 	margin-bottom: 50px;
 }
-h4 {
+.basic_h4 {
 	color: white;
 	letter-spacing: 2px;
 	font-size: 20px;
 }
-.newslatter form {
+.basic_newslatter form {
 	width: 380px;
 	max-width: 100%;
 	position: relative;
 }
-.newslatter form input:first-child {
+.basic_newslatter form input:first-child {
 	display: inline-block;
 	width: 100%;
 	padding: 14px 130px 14px 15px;
@@ -91,7 +92,7 @@ h4 {
 	outline: none;
 	border-radius: 30px;
 }
-.newslatter form input:last-child {
+.basic_newslatter form input:last-child {
 	position: absolute;
 	display: inline-block;
 	outline: none;
@@ -107,21 +108,21 @@ h4 {
 	right: 6px;
 }
 
-.about {
+.basic_about {
 	width: 100%;
 	padding: 100px 0px;
 	background-color: #191919;
 }
 
-.about img {
+.basic_about img {
 	height: auto;
 	width: 430px;
 }
-.about-text {
+.basic_about-text {
 	width: 550px;
 }
 
-.main {
+.basic_main {
 	width: 100vw;
 	max-width: 100%;
 	margin: 0 auto;
@@ -130,13 +131,13 @@ h4 {
 	justify-content: space-around;
 }
 
-.about-text h2 {
+.basic_about-text h2 {
 	color: white;
 	font-size: 75px;
 	text-transform: capitalize;
 	margin-bottom: 20px;
 }
-.about-text h5 {
+.basic_about-text h5 {
 	color: white;
 	letter-spacing: 2px;
 	font-size: 22px;
@@ -144,14 +145,14 @@ h4 {
 	text-transform: capitalize;
 }
 
-.about-text p {
+.basic_about-text p {
 	color: white;
 	letter-spacing: 1px;
 	line-height: 28px;
 	font-size: 18px;
 }
 
-button {
+.basic_button {
 	background-color: brown;
 	color: white;
 	text-decoration: none;
@@ -159,21 +160,21 @@ button {
 	font-weight: bold;
 	padding: 13px 30px;
 	border-radius: 30px;
-	transition: 0.4s;
+	transition: 0basic_4s;
 }
 
-button:hover {
+.basic_button:hover {
 	background-color: transparent;
 	border: 1px solid;
 }
 
-.service {
+.basic_service {
 	background-color: #101010;
 	width: 100%;
 	padding: 100px 0px;
 }
 
-.title h2 {
+.basic_title h2 {
 	color: white;
 	font-size: 75px;
 	width: 1130px;
@@ -181,13 +182,13 @@ button:hover {
 	text-align: center;
 }
 
-.box {
+.basic_box {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-height: 400px;
 }
-.card {
+.basic_card {
 	height: 365px;
 	width: 335px;
 	padding: 20px 35px;
@@ -199,7 +200,7 @@ button:hover {
 	text-align: center;
 }
 
-.card i {
+.basic_card i {
 	font-size: 50px;
 	display: block;
 	text-align: center;
@@ -207,20 +208,20 @@ button:hover {
 	color: brown;
 }
 
-h5 {
+.basic_h5 {
 	color: white;
 	font-size: 23px;
 	margin-bottom: 15px;
 }
 
-.pra p {
+.basic_pra p {
 	color: white;
 	font-size: 16px;
 	line-height: 27px;
 	margin-bottom: 25px;
 }
 
-.card .button {
+.basic_card .basic_button {
 	background-color: brown;
 	color: white;
 	text-decoration: none;
@@ -228,15 +229,15 @@ h5 {
 	font-weight: bold;
 	padding: 9px 30px;
 	border-radius: 30px;
-	transition: 0.4s;
+	transition: 0basic_4s;
 }
 
-.card .button:hover {
+.basic_card .basic_button:hover {
 	background-color: transparent;
 	border: 1px solid;
 }
 
-.contact-me {
+.basic_contact-me {
 	width: 100%;
 	height: 290px;
 	background: #191919;
@@ -245,14 +246,14 @@ h5 {
 	flex-direction: column;
 	justify-content: center;
 }
-.contact-me p {
+.basic_contact-me p {
 	color: white;
 	font-size: 30px;
 	font-weight: bold;
 	margin-bottom: 25px;
 }
 
-.contact-me .button-two {
+.basic_contact-me .basic_button-two {
 	background-color: brown;
 	color: white;
 	text-decoration: none;
@@ -260,15 +261,16 @@ h5 {
 	font-weight: bold;
 	padding: 9px 30px;
 	border-radius: 30px;
-	transition: 0.4s;
+	transition: 0basic_4s;
 }
 
-.contact-me .button-two:hover {
+.basic_contact-me .basic_button-two:hover {
 	background-color: transparent;
 	border: 1px solid;
 	cursor: pointer;
 }
-footer {
+
+basic_footer {
 	position: relatice;
 	width: 100%;
 	height: 400px;
@@ -277,7 +279,7 @@ footer {
 	flex-direction: column;
 }
 
-footer p:nth-child(1) {
+basic_footer p:nth-child(1) {
 	font-size: 30px;
 	color: white;
 	margin-top: 20px;
@@ -287,7 +289,7 @@ footer p:nth-child(1) {
 	align-items: center;
 	justify-content: center;
 }
-footer p:nth-child(2) {
+basic_footer p:nth-child(2) {
 	color: white;
 	font-size: 17px;
 	width: 100%;
@@ -298,12 +300,12 @@ footer p:nth-child(2) {
 	justify-content: center;
 }
 
-.social {
+.basic_social {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-.social a {
+.basic_social a {
 	width: 45px;
 	height: 45px;
 	display: flex;
@@ -317,13 +319,14 @@ footer p:nth-child(2) {
 	font-size: 20px;
 }
 
-.social a:hover {
-	transform: scale(1.1);
-	transition: 0.4s;
+.basic_social a:hover {
+	transform: scale(1basic_1);
+	transition: 0basic_4s;
 }
 
-.end {
+.basic_end {
 	position: absolute;
 	color: brown;
+	bottom: 35px;
 	font-size: 14px;
 }

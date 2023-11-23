@@ -1,6 +1,6 @@
 import BasicLanding from "./Basic/Landing";
 
-export const templateNames = ["Test Template", "Test Template 2"];
+export const templateNames = ["Test Template"];
 
 export function getTemplate(templateName: string, content: any) {
 	if (templateName === "Test Template") {
