@@ -142,17 +142,17 @@ func main() {
 
 	app.Get("/metrics", monitor.New())
 	app.Get("/statusz", h.ServerStatus)
-	app.Get("/users", h.GetAllUsers)
 	app.Post("/register", h.Register)
 	app.Post("/login", h.Login)
 
 	app.Use(h.AuthMiddleware)
 
-	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
 	app.Get("/authed/website", h.GetWebsiteForEditing)
 	app.Post("/authed/website", h.CreateWebsite)
 	app.Put("/authed/website", h.UpdateWebsiteInformation)
 	app.Patch("/authed/website", h.UpdateWebsiteContent)
+	app.Delete("/authed/website", h.DeleteWebsite)
+	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
 
 	startRoutines(app, db)
 

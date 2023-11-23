@@ -6,15 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) GetAllUsers(c *fiber.Ctx) error {
-	users, err := h.userRepository.Find()
-	if err != nil {
-		return c.SendStatus(500)
-	}
-
-	return c.Status(200).JSON(map[string]any{"users": users})
-}
-
 func (h *Handler) Register(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username"`
