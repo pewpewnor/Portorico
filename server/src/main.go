@@ -66,11 +66,11 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 }
 
 func startRoutines(app *fiber.App, db *sqlx.DB) {
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
-	// wg.Add(1)
-	// go cleanAllSoftDelete(ctx, wg, db)
+	wg.Add(1)
+	go cleanAllSoftDelete(ctx, wg, db)
 
 	osChan := make(chan os.Signal, 1)
 	signal.Notify(osChan, os.Interrupt)
