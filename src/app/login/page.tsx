@@ -131,7 +131,7 @@ export default function LoginPage() {
 					)}
 					<p className="mt-4 text-center text-sm">
 						Haven&apos;t created an account?
-						<Link href="/login">
+						<Link href="/register">
 							{" "}
 							<span className="text-blue-600 underline hover:text-blue-300">
 								Sign Up

@@ -214,8 +214,12 @@ export default function DashboardPage() {
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{websites.map(
 						(website, index) =>
-							(website.name.includes(inputSearch) ||
-								website.description.includes(inputSearch)) && (
+							(website.name
+								.toLowerCase()
+								.includes(inputSearch.toLowerCase()) ||
+								website.description
+									.toLowerCase()
+									.includes(inputSearch.toLowerCase())) && (
 								<Card key={index} className="w-full">
 									<CardHeader className="flex justify-between">
 										<div className="flex gap-3">
@@ -272,16 +276,13 @@ export default function DashboardPage() {
 														key="delete"
 														className="text-danger"
 														color="danger"
+														onClick={() => {
+															handleDelete(
+																website.id
+															);
+														}}
 													>
-														<button
-															onClick={() => {
-																handleDelete(
-																	website.id
-																);
-															}}
-														>
-															Delete
-														</button>
+														Delete
 													</DropdownItem>
 												</DropdownMenu>
 											</Dropdown>
@@ -315,9 +316,9 @@ export default function DashboardPage() {
 						You haven&apos;t created any website yet.
 					</p>
 					<Link
-						href="/create"
 						underline="always"
 						className="text-indigo-600"
+						onClick={onOpenCreate}
 					>
 						Create A New Website
 					</Link>

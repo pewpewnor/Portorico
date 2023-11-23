@@ -28,10 +28,10 @@ const menus = [
 		href: "/dashboard",
 		hiddenIfNotLoggedIn: true,
 	},
-	{
-		name: "Templates",
-		href: "/templates",
-	},
+	// {
+	// 	name: "Templates",
+	// 	href: "/templates",
+	// },
 ];
 
 export default function Navbar() {
