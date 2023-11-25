@@ -21,7 +21,6 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-
 	user := h.userRepository.GetByUsername(body.Username)
 	if user != nil {
 		validations["username"] = "username is already taken, please try a different one"
@@ -34,7 +33,6 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(24 * time.Hour)})
-
 	return c.Status(200).JSON(map[string]any{"user": user})
 }
 
@@ -64,6 +62,5 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{Name: "session", Value: session.Token, Expires: time.Now().Add(24 * time.Hour)})
-
 	return c.Status(200).JSON(map[string]any{"user": user})
 }
