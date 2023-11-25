@@ -65,47 +65,6 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 	log.Info("server has closed database connection")
 }
 
-func startRoutines(app *fiber.App, db *sqlx.DB) {
-	ctx, cancel := context.WithCancel(context.Background())
-	wg := &sync.WaitGroup{}
-
-	wg.Add(1)
-	go cleanAllSoftDelete(ctx, wg, db)
-
-	osChan := make(chan os.Signal, 1)
-	signal.Notify(osChan, os.Interrupt)
-	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
-}
-
-func migrateRefreshDatabase(db *sqlx.DB) {
-	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
-	if err != nil {
-		log.Fatalf("error while creating driver from sqlx for migrator: %v", err)
-	}
-	m, err := migrate.NewWithDatabaseInstance("file://server/migrations", "postgres", driver)
-	if err != nil {
-		log.Fatalf("error while creating migrator: %v", err)
-	}
-	if err := m.Force(1); err != nil {
-		log.Fatalf("error while forcing version to 1: %v", err)
-	}
-	if err := m.Down(); err != nil {
-		log.Fatalf("error while migrating down: %v", err)
-	}
-	if err := m.Up(); err != nil {
-		log.Fatalf("error while migrating up: %v", err)
-	}
-}
-
-func seedDatabase(db *sqlx.DB) {
-	userRepository := repository.NewLiveUserRepository(db)
-	user, _, _ := userRepository.Create("a", "a")
-
-	websiteRepository := repository.NewLiveWebsiteRepository(db)
-	websiteRepository.Create("meme", "Test Template", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
-	websiteRepository.Create("original_human", "Test Template", "This is simply a a fake description message for testing purposes!!!", user.Id)
-}
-
 func main() {
 	log.SetReportCaller(true)
 
@@ -126,8 +85,29 @@ func main() {
 		log.Fatal("sqlx cannot connect to database: %v", err)
 	}
 
-	migrateRefreshDatabase(db)
-	seedDatabase(db)
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	if err != nil {
+		log.Fatalf("error while creating driver from sqlx for migrator: %v", err)
+	}
+	m, err := migrate.NewWithDatabaseInstance("file://server/migrations", "postgres", driver)
+	if err != nil {
+		log.Fatalf("error while creating migrator: %v", err)
+	}
+	if err := m.Force(1); err != nil {
+		log.Fatalf("error while forcing version to 1: %v", err)
+	}
+	if err := m.Down(); err != nil {
+		log.Fatalf("error while migrating down: %v", err)
+	}
+	if err := m.Up(); err != nil {
+		log.Fatalf("error while migrating up: %v", err)
+	}
+
+	userRepository := repository.NewLiveUserRepository(db)
+	user, _, _ := userRepository.Create("a", "a")
+	websiteRepository := repository.NewLiveWebsiteRepository(db)
+	websiteRepository.Create("meme", "Test Template", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
+	websiteRepository.Create("original_human", "Test Template", "This is simply a a fake description message for testing purposes!!!", user.Id)
 
 	app := fiber.New(fiber.Config{
 		Immutable: true,
@@ -155,7 +135,15 @@ func main() {
 	app.Delete("/authed/website/:websiteId", h.DeleteWebsite)
 	app.Get("/authed/websites", h.FindWebsitesOwnedByUser)
 
-	startRoutines(app, db)
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := &sync.WaitGroup{}
+
+	wg.Add(1)
+	go cleanAllSoftDelete(ctx, wg, db)
+
+	osChan := make(chan os.Signal, 1)
+	signal.Notify(osChan, os.Interrupt)
+	go shutdownServerWhenInterrupt(osChan, app, db, cancel, wg)
 
 	log.Infof("starting server on PORT %v...", PORT)
 	// if err := app.ListenTLS(":"+PORT, "server.crt", "server.key"); err != nil {
