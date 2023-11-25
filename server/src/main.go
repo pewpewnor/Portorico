@@ -61,8 +61,9 @@ func shutdownServerWhenInterrupt(osChan chan os.Signal, app *fiber.App, db *sqlx
 
 	if err := db.Close(); err != nil {
 		log.Errorf("error while closing database connection: %v", err)
+	} else {
+		log.Info("server has closed database connection")
 	}
-	log.Info("server has closed database connection")
 }
 
 func main() {

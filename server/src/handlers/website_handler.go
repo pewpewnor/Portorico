@@ -43,11 +43,7 @@ func (h *Handler) GetWebsiteForEditing(c *fiber.Ctx) error {
 }
 
 func (h *Handler) FindWebsitesOwnedByUser(c *fiber.Ctx) error {
-	user, ok := c.Locals("user").(*model.User)
-	if !ok {
-		return c.SendStatus(500)
-	}
-
+	user, _ := c.Locals("user").(*model.User)
 	websites, err := h.websiteRepository.FindByUserId(user.Id)
 	if err != nil {
 		return c.SendStatus(500)
@@ -88,7 +84,6 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	}
 
 	user, _ := c.Locals("user").(*model.User)
-
 	website, err := h.websiteRepository.Create(body.Name, body.TemplateName, body.Description, user.Id)
 	if err != nil {
 		return c.SendStatus(500)
