@@ -17,18 +17,10 @@ type Base struct {
 	DeletedAt sql.NullTime `db:"deleted_at" json:"-"`
 }
 
-func (b *Base) FillBaseInsert() {
+func (b *Base) FillDataForInsert() {
 	b.Id = uuid.New()
 	b.CreatedAt = time.Now()
 	b.UpdatedAt = time.Now()
-}
-
-func (b *Base) FillBaseUpdate() {
-	b.UpdatedAt = time.Now()
-}
-
-func (b *Base) FillBaseDelete() {
-	b.DeletedAt = sql.NullTime{Time: time.Now(), Valid: true}
 }
 
 type User struct {

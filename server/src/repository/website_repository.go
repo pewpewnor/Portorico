@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
@@ -19,7 +21,7 @@ func NewWebsiteRepository(db *sqlx.DB) *WebsiteRepository {
 
 func (wr *WebsiteRepository) GetById(id uuid.UUID) (model.Website, bool) {
 	website := model.Website{}
-	if err := wr.db.Get(&website, "SELECT * FROM websites WHERE id = $1", id); err != nil {
+	if err := wr.db.Get(&website, "SELECT * FROM websites WHERE id = $1 AND deleted_at IS NULL", id); err != nil {
 		return model.Website{}, false
 	}
 
@@ -28,7 +30,7 @@ func (wr *WebsiteRepository) GetById(id uuid.UUID) (model.Website, bool) {
 
 func (wr *WebsiteRepository) GetByName(name string) (model.Website, bool) {
 	website := model.Website{}
-	if err := wr.db.Get(&website, "SELECT * FROM websites WHERE name = $1", name); err != nil {
+	if err := wr.db.Get(&website, "SELECT * FROM websites WHERE name = $1 AND deleted_at IS NULL", name); err != nil {
 		return model.Website{}, false
 	}
 
@@ -37,7 +39,7 @@ func (wr *WebsiteRepository) GetByName(name string) (model.Website, bool) {
 
 func (wr *WebsiteRepository) FindByUserId(userId uuid.UUID) ([]model.Website, error) {
 	websites := []model.Website{}
-	err := wr.db.Select(&websites, "SELECT * FROM websites WHERE websites.user_id = $1", userId)
+	err := wr.db.Select(&websites, "SELECT * FROM websites WHERE websites.user_id = $1 AND deleted_at IS NULL", userId)
 	if err != nil {
 		log.Errorf("server cannot find websites by userId: %v", err)
 		return nil, err
@@ -48,7 +50,7 @@ func (wr *WebsiteRepository) FindByUserId(userId uuid.UUID) ([]model.Website, er
 
 func (wr *WebsiteRepository) Create(name string, templateName string, description string, userId uuid.UUID) (model.Website, error) {
 	website := model.Website{Name: name, TemplateName: templateName, Description: description, VisitorsThisMonth: 0, Content: []byte("{}"), UserId: userId}
-	website.FillBaseInsert()
+	website.FillDataForInsert()
 	_, err := wr.db.NamedExec("INSERT INTO websites VALUES (:id, :created_at, :updated_at, :deleted_at, :name, :template_name, :description, :visitors_this_month, :content, :user_id)", &website)
 	if err != nil {
 		log.Errorf("server cannot create website: %v", err)
@@ -58,8 +60,8 @@ func (wr *WebsiteRepository) Create(name string, templateName string, descriptio
 	return website, nil
 }
 
-func (wr *WebsiteRepository) Update(name string, description string, content json.RawMessage, websiteId uuid.UUID) error {
-	_, err := wr.db.Exec("UPDATE websites SET name = $1, description = $2, content = $3 WHERE id = $4", name, description, content, websiteId)
+func (wr *WebsiteRepository) Update(websiteId uuid.UUID, name string, description string, content json.RawMessage) error {
+	_, err := wr.db.Exec("UPDATE websites SET name = $1, description = $2, content = $3, updated_at = $4 WHERE id = $5", name, description, content, time.Now(), websiteId)
 	if err != nil {
 		log.Errorf("server cannot update website content: %v", err)
 		return err
@@ -69,7 +71,7 @@ func (wr *WebsiteRepository) Update(name string, description string, content jso
 }
 
 func (wr *WebsiteRepository) Delete(websiteId uuid.UUID) error {
-	_, err := wr.db.Exec("DELETE FROM websites WHERE id = $1", websiteId)
+	_, err := wr.db.Exec("UPDATE websites SET deleted_at = $1 WHERE id = $2", sql.NullTime{Time: time.Now(), Valid: true}, websiteId)
 	if err != nil {
 		log.Errorf("server cannot delete website: %v", err)
 		return err

@@ -121,7 +121,7 @@ func (h *handler) UpdateWebsiteContent(c *fiber.Ctx) error {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepo.Update(website.Name, website.Description, json.RawMessage(body.Content), websiteId)
+	err = h.websiteRepo.Update(websiteId, website.Name, website.Description, json.RawMessage(body.Content))
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -173,7 +173,7 @@ func (h *handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepo.Update(body.Name, body.Description, website.Content, websiteId)
+	err = h.websiteRepo.Update(websiteId, body.Name, body.Description, website.Content)
 	if err != nil {
 		return c.SendStatus(500)
 	}
