@@ -9,32 +9,32 @@ import (
 	"github.com/pewpewnor/portorico/server/src/model"
 )
 
-func (h *Handler) GetWebsite(c *fiber.Ctx) error {
+func (h *handler) GetWebsite(c *fiber.Ctx) error {
 	name := c.Params("name")
 	if name == "" {
 		return c.SendStatus(400)
 	}
 
-	website := h.websiteRepository.GetByName(name)
-	if website == nil {
+	website, found := h.websiteRepo.GetByName(name)
+	if !found {
 		return c.SendStatus(404)
 	}
 
 	return c.Status(200).JSON(website)
 }
 
-func (h *Handler) GetWebsiteForEditing(c *fiber.Ctx) error {
+func (h *handler) GetWebsiteForEditing(c *fiber.Ctx) error {
 	name := c.Params("name")
 	if name == "" {
 		return c.SendStatus(400)
 	}
 
-	website := h.websiteRepository.GetByName(name)
-	if website == nil {
+	website, found := h.websiteRepo.GetByName(name)
+	if !found {
 		return c.SendStatus(404)
 	}
 
-	user, _ := c.Locals("user").(*model.User)
+	user, _ := c.Locals("user").(model.User)
 	if website.UserId != user.Id {
 		return c.SendStatus(401)
 	}
@@ -42,9 +42,9 @@ func (h *Handler) GetWebsiteForEditing(c *fiber.Ctx) error {
 	return c.Status(200).JSON(website)
 }
 
-func (h *Handler) FindWebsitesOwnedByUser(c *fiber.Ctx) error {
-	user, _ := c.Locals("user").(*model.User)
-	websites, err := h.websiteRepository.FindByUserId(user.Id)
+func (h *handler) FindWebsitesOwnedByUser(c *fiber.Ctx) error {
+	user, _ := c.Locals("user").(model.User)
+	websites, err := h.websiteRepo.FindByUserId(user.Id)
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -52,7 +52,7 @@ func (h *Handler) FindWebsitesOwnedByUser(c *fiber.Ctx) error {
 	return c.Status(200).JSON(websites)
 }
 
-func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
+func (h *handler) CreateWebsite(c *fiber.Ctx) error {
 	var body struct {
 		Name         string `json:"name"`
 		TemplateName string `json:"templateName"`
@@ -78,13 +78,13 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 			"website name must not contain characters such as '/', '&', '?', '=', ':', '%'"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	if h.websiteRepository.GetByName(body.Name) != nil {
+	if _, exist := h.websiteRepo.GetByName(body.Name); exist {
 		validations["name"] = "website name is already taken, please try a different one"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
-	user, _ := c.Locals("user").(*model.User)
-	website, err := h.websiteRepository.Create(body.Name, body.TemplateName, body.Description, user.Id)
+	user, _ := c.Locals("user").(model.User)
+	website, err := h.websiteRepo.Create(body.Name, body.TemplateName, body.Description, user.Id)
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -92,7 +92,7 @@ func (h *Handler) CreateWebsite(c *fiber.Ctx) error {
 	return c.Status(200).JSON(map[string]any{"website": website})
 }
 
-func (h *Handler) UpdateWebsiteContent(c *fiber.Ctx) error {
+func (h *handler) UpdateWebsiteContent(c *fiber.Ctx) error {
 	var body struct {
 		Content   string `json:"content"`
 		WebsiteId string `json:"websiteId"`
@@ -111,17 +111,17 @@ func (h *Handler) UpdateWebsiteContent(c *fiber.Ctx) error {
 		validations["websiteId"] = "websiteId is invalid"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	website := h.websiteRepository.GetById(websiteId)
-	if website == nil {
-		return c.SendStatus(400)
+	website, found := h.websiteRepo.GetById(websiteId)
+	if !found {
+		return c.SendStatus(404)
 	}
 
-	user, _ := c.Locals("user").(*model.User)
+	user, _ := c.Locals("user").(model.User)
 	if website.UserId != user.Id {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepository.Update(website.Name, website.Description, json.RawMessage(body.Content), websiteId)
+	err = h.websiteRepo.Update(website.Name, website.Description, json.RawMessage(body.Content), websiteId)
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -129,7 +129,7 @@ func (h *Handler) UpdateWebsiteContent(c *fiber.Ctx) error {
 	return c.SendStatus(200)
 }
 
-func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
+func (h *handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 	var body struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
@@ -159,21 +159,21 @@ func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 		validations["websiteId"] = "websiteId is invalid"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	if otherWebsite := h.websiteRepository.GetByName(body.Name); otherWebsite != nil && otherWebsite.Id != websiteId {
+	website, found := h.websiteRepo.GetById(websiteId)
+	if !found {
+		return c.SendStatus(404)
+	}
+	if otherWebsite, exist := h.websiteRepo.GetByName(body.Name); exist && otherWebsite.Id != websiteId {
 		validations["name"] = "website name is already taken, please try a different one"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	website := h.websiteRepository.GetById(websiteId)
-	if website == nil {
-		return c.SendStatus(400)
-	}
 
-	user, _ := c.Locals("user").(*model.User)
+	user, _ := c.Locals("user").(model.User)
 	if website.UserId != user.Id {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepository.Update(body.Name, body.Description, website.Content, websiteId)
+	err = h.websiteRepo.Update(body.Name, body.Description, website.Content, websiteId)
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -181,22 +181,22 @@ func (h *Handler) UpdateWebsiteInformation(c *fiber.Ctx) error {
 	return c.SendStatus(200)
 }
 
-func (h *Handler) DeleteWebsite(c *fiber.Ctx) error {
+func (h *handler) DeleteWebsite(c *fiber.Ctx) error {
 	websiteId, err := uuid.Parse(c.Params("websiteId"))
 	if err != nil {
 		return c.SendStatus(400)
 	}
-	website := h.websiteRepository.GetById(websiteId)
-	if website == nil {
-		return c.SendStatus(400)
+	website, found := h.websiteRepo.GetById(websiteId)
+	if !found {
+		return c.SendStatus(404)
 	}
 
-	user, _ := c.Locals("user").(*model.User)
+	user, _ := c.Locals("user").(model.User)
 	if website.UserId != user.Id {
 		return c.SendStatus(403)
 	}
 
-	err = h.websiteRepository.Delete(websiteId)
+	err = h.websiteRepo.Delete(websiteId)
 	if err != nil {
 		return c.SendStatus(500)
 	}

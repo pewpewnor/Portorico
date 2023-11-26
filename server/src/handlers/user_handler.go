@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) Register(c *fiber.Ctx) error {
+func (h *handler) Register(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -21,13 +21,13 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	if len(validations) > 0 {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
-	user := h.userRepository.GetByUsername(body.Username)
-	if user != nil {
+	_, exist := h.userRepo.GetByUsername(body.Username)
+	if exist {
 		validations["username"] = "username is already taken, please try a different one"
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
-	user, session, err := h.userRepository.Create(body.Username, body.Password)
+	user, session, err := h.userRepo.Create(body.Username, body.Password)
 	if err != nil {
 		return c.SendStatus(500)
 	}
@@ -36,7 +36,7 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	return c.Status(200).JSON(map[string]any{"user": user})
 }
 
-func (h *Handler) Login(c *fiber.Ctx) error {
+func (h *handler) Login(c *fiber.Ctx) error {
 	var body struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -52,7 +52,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(map[string]any{"validations": validations})
 	}
 
-	user, session, valid, err := h.userRepository.GetByCredentials(body.Username, body.Password)
+	user, session, valid, err := h.userRepo.GetByCredentials(body.Username, body.Password)
 	if err != nil {
 		return c.SendStatus(500)
 	}

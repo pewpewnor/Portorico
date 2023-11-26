@@ -8,23 +8,23 @@ import (
 	"github.com/pewpewnor/portorico/server/src/repository"
 )
 
-type Handler struct {
-	userRepository    *repository.LiveUserRepository
-	websiteRepository *repository.LiveWebsiteRepository
+type handler struct {
+	userRepo    *repository.UserRepository
+	websiteRepo *repository.WebsiteRepository
 }
 
-func NewHandler(db *sqlx.DB) *Handler {
-	return &Handler{repository.NewLiveUserRepository(db), repository.NewLiveWebsiteRepository(db)}
+func NewHandler(db *sqlx.DB) *handler {
+	return &handler{repository.NewUserRepository(db), repository.NewWebsiteRepository(db)}
 }
 
-func (h *Handler) validateStringNotEmpty(validations map[string]string, fieldName string, showcaseName string, fieldValue string) {
+func (h *handler) validateStringNotEmpty(validations map[string]string, fieldName string, showcaseName string, fieldValue string) {
 	if fieldValue == "" {
 		validations[fieldName] = showcaseName + " must not be empty"
 		return
 	}
 }
 
-func (h *Handler) validateStringMaxLength(validations map[string]string, fieldName string, showcaseName string, max uint16, fieldValue string) {
+func (h *handler) validateStringMaxLength(validations map[string]string, fieldName string, showcaseName string, max uint16, fieldValue string) {
 	if fieldValue == "" {
 		validations[fieldName] = showcaseName + " must not be empty"
 		return
@@ -34,7 +34,7 @@ func (h *Handler) validateStringMaxLength(validations map[string]string, fieldNa
 	}
 }
 
-func (h *Handler) validateStringMinMaxLength(validations map[string]string, fieldName string, showcaseName string, min uint16, max uint16, fieldValue string) {
+func (h *handler) validateStringMinMaxLength(validations map[string]string, fieldName string, showcaseName string, min uint16, max uint16, fieldValue string) {
 	if fieldValue == "" {
 		validations[fieldName] = showcaseName + " must not be empty"
 		return
@@ -49,7 +49,7 @@ func (h *Handler) validateStringMinMaxLength(validations map[string]string, fiel
 	}
 }
 
-func (h *Handler) validateJSONString(validations map[string]string, fieldName string, jsonString string) {
+func (h *handler) validateJSONString(validations map[string]string, fieldName string, jsonString string) {
 	var data interface{}
 	if err := json.Unmarshal([]byte(jsonString), &data); err != nil {
 		validations[fieldName] = fieldName + " is not valid json"

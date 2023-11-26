@@ -104,9 +104,9 @@ func main() {
 		log.Fatalf("error while migrating up: %v", err)
 	}
 
-	userRepository := repository.NewLiveUserRepository(db)
+	userRepository := repository.NewUserRepository(db)
 	user, _, _ := userRepository.Create("a", "a")
-	websiteRepository := repository.NewLiveWebsiteRepository(db)
+	websiteRepository := repository.NewWebsiteRepository(db)
 	websiteRepository.Create("meme", "Test Template", "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt delectus, ea, adipisci aut eligendi numquam debitis, soluta dignissimos ipsa magni dolores fugit velit?", user.Id)
 	websiteRepository.Create("original_human", "Test Template", "This is simply a a fake description message for testing purposes!!!", user.Id)
 
