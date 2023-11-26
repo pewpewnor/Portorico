@@ -17,9 +17,13 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 }
 
 func (ur *UserRepository) createSession(userId uuid.UUID) (model.Session, error) {
-	session := model.Session{Token: utils.GenerateRandomString(32), UserId: userId}
-	session.FillBaseInsert()
-	if _, err := ur.db.NamedExec("INSERT INTO sessions VALUES (:id, :created_at, :updated_at, :deleted_at, :token, :user_id)", &session); err != nil {
+	session := model.Session{
+		Token:  utils.GenerateRandomString(32),
+		UserId: userId,
+	}
+	session.FillDataForInsert()
+	_, err := ur.db.NamedExec(`INSERT INTO sessions VALUES (:id, :created_at, :updated_at, :deleted_at, :token, :user_id)`, &session)
+	if err != nil {
 		log.Errorf("server cannot create session: %v", err)
 		return model.Session{}, err
 	}
@@ -39,7 +43,8 @@ func (ur *UserRepository) Find() ([]model.User, error) {
 
 func (ur *UserRepository) GetByUsername(name string) (model.User, bool) {
 	user := model.User{}
-	if err := ur.db.Get(&user, "SELECT * FROM users WHERE username = $1", name); err != nil {
+	err := ur.db.Get(&user, "SELECT * FROM users WHERE username = $1", name)
+	if err != nil {
 		return model.User{}, false
 	}
 
@@ -48,7 +53,8 @@ func (ur *UserRepository) GetByUsername(name string) (model.User, bool) {
 
 func (ur *UserRepository) GetByCredentials(username string, password string) (model.User, model.Session, bool, error) {
 	user := model.User{}
-	if err := ur.db.Get(&user, "SELECT * FROM users WHERE username = $1", username); err != nil || !utils.VerifySamePassword(user.Password, password) {
+	err := ur.db.Get(&user, "SELECT * FROM users WHERE username = $1", username)
+	if err != nil || !utils.VerifySamePassword(user.Password, password) {
 		return model.User{}, model.Session{}, false, nil
 	}
 
@@ -77,7 +83,7 @@ func (ur *UserRepository) Create(username string, password string) (model.User, 
 	}
 
 	user := model.User{Username: username, Password: hashedPassword}
-	user.FillBaseInsert()
+	user.FillDataForInsert()
 	if _, err = ur.db.NamedExec("INSERT INTO users VALUES (:id, :created_at, :updated_at, :deleted_at, :username, :password)", &user); err != nil {
 		log.Errorf("server cannot create user: %v", err)
 		return model.User{}, model.Session{}, err
