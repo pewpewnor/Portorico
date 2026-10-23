@@ -1,6 +1,10 @@
 # Portorico
 
-Portorico is a web app prototype for creating and publishing simple personal or company websites from reusable templates. Users can register, sign in, create and edit website entries, choose a template, and view a published page. The current frontend includes a basic landing template; the backend exposes account, session, and website endpoints.
+Portorico is a web app prototype for creating and publishing simple personal or
+company websites from reusable templates. Users can register, sign in, create
+and edit website entries, choose a template, and view a published page. The
+current frontend includes a basic landing template; the backend exposes account,
+session, and website endpoints.
 
 ## Stack
 
@@ -8,7 +12,8 @@ Portorico is a web app prototype for creating and publishing simple personal or 
 - Backend: Go, Fiber, and PostgreSQL
 - Database changes: SQL migration files run by golang-migrate
 
-The frontend currently calls the backend at http://localhost:8000.
+The frontend currently calls the backend at
+[http://localhost:8000](http://localhost:8000).
 
 ## Requirements
 
@@ -36,8 +41,12 @@ npm install
 npm run dev
 ~~~
 
-Open http://localhost:3000. The frontend is configured for the API on port 8000; keep that port or update the Axios base URL in the frontend before changing it.
+Open [http://localhost:3000](http://localhost:3000). The frontend is configured
+for the API on port 8000; keep that port or update the Axios base URL in the
+frontend before changing it.
 
 ## Development note
 
-The backend currently forces a migration version and runs a down/up migration cycle during startup. Use a disposable local database until that startup behavior is reviewed; do not point this prototype at data you need to keep.
+The backend currently forces a migration version and runs a down/up migration
+cycle during startup. Use a disposable local database until that startup
+behavior is reviewed; do not point this prototype at data you need to keep.
